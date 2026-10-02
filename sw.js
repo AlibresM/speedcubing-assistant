@@ -1,14 +1,22 @@
 /* Speedcubing Assistant - service worker
    Cache-first for the app shell, with a background refresh.
-   Bump CACHE when you upload a new index.html. */
-const CACHE = "cubing-v2";
+   Bump CACHE whenever any file below changes. */
+const CACHE = "cubing-v3";
 const ASSETS = [
   "./",
   "./index.html",
+  "./config.json",
+  "./css/app.css",
+  "./js/cube.js",
+  "./js/store.js",
+  "./js/cases.js",
+  "./js/timer.js",
+  "./js/ui.js",
+  "./js/app.js",
   "./manifest.json",
-  "./icon-192.png",
-  "./icon-512.png",
-  "./icon-512-maskable.png"
+  "./icons/icon-192.png",
+  "./icons/icon-512.png",
+  "./icons/icon-512-maskable.png"
 ];
 
 self.addEventListener("install", e => {

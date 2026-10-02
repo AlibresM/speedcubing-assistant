@@ -1,0 +1,116 @@
+{
+  "open": [
+    "oll",
+    "pll"
+  ],
+  "sets": [
+    {
+      "id": "oll",
+      "title": "2-Look OLL",
+      "sub": "Orientation: make the top face one colour.",
+      "groups": [
+        {
+          "n": 1,
+          "label": "Edges",
+          "mask": "edges",
+          "cases": [
+            { "id": "oll-l", "name": "L-Shape", "alg": "f' L' U' L U f", "prob": "50%" },
+            { "id": "oll-i", "name": "I-Shape", "alg": "F' L' U' L U F", "prob": "25%" },
+            { "id": "oll-dot", "name": "Dot Shape", "alg": "F' L' U' L U F f' L' U' L U f", "prob": "13%" }
+          ]
+        },
+        {
+          "n": 2,
+          "label": "Corners",
+          "mask": "oll",
+          "cases": [
+            { "id": "oll-sune", "name": "Sune", "alg": "L' U2 L U L' U L", "prob": "15%" },
+            { "id": "oll-antisune", "name": "Antisune", "alg": "L' U' L U' L' U2 L", "prob": "15%" },
+            { "id": "oll-h", "name": "H", "alg": "L' U' L U' L' U L U' L' U2 L", "prob": "7%" },
+            { "id": "oll-pi", "name": "Pi", "alg": "L' U2 L2 U L2 U L2 U2 L'", "prob": "15%" },
+            { "id": "oll-u", "name": "U (Headlights)", "alg": "L2 D' L U2 L' D L U2 L", "prob": "15%" },
+            { "id": "oll-t", "name": "T (Chameleon)", "alg": "l' U' L U l F' L' F", "prob": "15%" },
+            { "id": "oll-bowtie", "name": "L (Bowtie)", "alg": "F' L F l' U' L' U l", "prob": "15%" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "pll",
+      "title": "2-Look PLL",
+      "sub": "Permutation: put the last-layer pieces in place.",
+      "groups": [
+        {
+          "n": 1,
+          "label": "Corners",
+          "mask": "corners",
+          "cases": [
+            { "id": "pll-head", "name": "Headlights", "alg": "L' U' L U L F' L2 U L U L' U' L F", "prob": "67%" },
+            { "id": "pll-diag", "name": "Diagonal", "alg": "F' L' U L U L' U' L F L' U' L U L F' L' F", "prob": "17%" },
+            { "id": "pll-aa", "name": "Aa", "alg": "x L2 D2 L' U' L D2 L' U L'", "prob": "67%" },
+            { "id": "pll-ab", "name": "Ab", "alg": "x' L2 D2 L U L' D2 L U' L", "prob": "67%" }
+          ]
+        },
+        {
+          "n": 2,
+          "label": "Edges",
+          "mask": "full",
+          "cases": [
+            { "id": "pll-ua", "name": "Ua", "alg": "M2 U M U2 M' U M2", "prob": "33%" },
+            { "id": "pll-ub", "name": "Ub", "alg": "M2 U' M U2 M' U' M2", "prob": "33%" },
+            { "id": "pll-z", "name": "Z", "alg": "M' U' M2 U' M2 U' M' U2 M2", "prob": "17%" },
+            { "id": "pll-h", "name": "H", "alg": "M2 U M2 U2 M2 U M2", "prob": "8%" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "f2l",
+      "title": "F2L",
+      "sub": "Pair a corner with its edge and insert it into the front-left slot.",
+      "groups": [
+        {
+          "n": 1,
+          "label": "Basic inserts",
+          "mask": "f2l",
+          "cases": [
+            { "id": "f2l-pair-l", "name": "Paired, L side", "alg": "U' L' U L" },
+            { "id": "f2l-pair-f", "name": "Paired, F side", "alg": "U F U' F'" },
+            { "id": "f2l-3-l", "name": "3-mover, L side", "alg": "L' U' L" },
+            { "id": "f2l-3-f", "name": "3-mover, F side", "alg": "F U F'" }
+          ]
+        },
+        {
+          "n": 2,
+          "label": "White on the side",
+          "mask": "f2l",
+          "cases": [
+            { "id": "f2l-side-apart-l", "name": "Apart, L side", "alg": "U L' U' L U2 L' U L" },
+            { "id": "f2l-side-apart-f", "name": "Apart, F side", "alg": "U' F U F' U2 F U' F'" },
+            { "id": "f2l-side-split-l", "name": "Split, L side", "alg": "U L' U L U' L' U' L" },
+            { "id": "f2l-side-split-f", "name": "Split, F side", "alg": "U' F U' F' U F U F'" }
+          ]
+        },
+        {
+          "n": 3,
+          "label": "White on top",
+          "mask": "f2l",
+          "cases": [
+            { "id": "f2l-top-split-l", "name": "Split, L side", "alg": "L' U2 L U L' U' L" },
+            { "id": "f2l-top-split-f", "name": "Split, F side", "alg": "F U2 F' U' F U F'" },
+            { "id": "f2l-top-apart-l", "name": "Apart, L side", "alg": "U' L' U2 L U' L' U L" },
+            { "id": "f2l-top-apart-f", "name": "Apart, F side", "alg": "U F U2 F' U F U' F'" }
+          ]
+        }
+      ]
+    }
+  ],
+  "status": {
+    "oll-dot": "learned",
+    "oll-i": "learned",
+    "oll-l": "learned"
+  },
+  "shut": {
+    "oll1": 1
+  }
+}

@@ -2,14 +2,15 @@
 
 Before changing anything, read:
 
-- `STATUS.md` — what exists, decisions already made (don't re-litigate them), known limitations, ideas backlog.
-- `ARCHITECTURE.md` — how `index.html` is structured.
+- `docs/STATUS.md`: what exists, decisions already made (don't re-litigate them), known limitations, ideas backlog.
+- `docs/ARCHITECTURE.md`: how the code works (config, scripts, single-file builder, layout).
 
-Hard rules (details in STATUS.md):
+Hard rules (details in the docs):
 
-- Formulas are **left-hand** on purpose. Never convert them to right-hand standards.
-- Bump `CACHE` in `sw.js` whenever `index.html` changes.
-- Never edit the `/*BAKED*/…/*END*/` block unless the user asks to reset saved formulas/marks.
-- Markup lives in the `SKELETON` string, not `<body>`.
-- Case ids are permanent storage keys — don't rename them.
+- Formulas are **left-hand** on purpose. Never convert them to right-hand standards. F2L targets the front-left slot.
+- Algorithm sets/cases live in `config.json`; its formulas, marks and collapsed groups are the user's own. Don't reset them.
+- Case and set ids are permanent storage keys. Don't rename them.
+- Bump `CACHE` in `sw.js` whenever any app file changes; list new files in `ASSETS`.
+- Scripts are classic (non-module) and carry `data-app`; the stylesheet carries `data-app-css`. The single-file builders depend on that.
 - No `alert`/`confirm`/`prompt`; use two-step buttons and the `#sync` message area.
+- Test over HTTP (`config.json` can't be fetched from `file://`); `node tools/build.js` for the single-file version.

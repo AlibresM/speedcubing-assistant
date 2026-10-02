@@ -1,21 +1,23 @@
 # Project status — Speedcubing Assistant
 
-Handover note. Read `ARCHITECTURE.md` for how the code works; this file says
+Handover note. Read `docs/ARCHITECTURE.md` for how the code works; this file says
 **what exists, what was decided, and what is open**.
 
 ---
 
 ## What this is
 
-A single-file web app for 2-Look OLL and PLL practice, left-hand oriented, with a
-built-in speedcubing timer. No build step, no dependencies, ~43 KB of HTML.
+A static web app for left-handed algorithm practice (2-Look OLL, 2-Look PLL, F2L),
+with a built-in speedcubing timer. The algorithm sets are data in `config.json`.
+Code is split into `css/` and `js/`, with no build step for the website and no
+dependencies. `tools/build.js` produces a single-file version (~49 KB).
 
 Two deployments:
 
 | Where | URL | Notes |
 |---|---|---|
-| GitHub Pages (PWA) | `https://alibresm.github.io/speedcubing-assistant/` | installable, offline-capable, self-hosted |
-| Claude artifact | hosted on claude.ai | same app, plus account sync and a "Save edits into the page" button |
+| GitHub Pages (PWA) | `https://alibresm.github.io/speedcubing-assistant/` | the repo as is; installable, offline-capable |
+| Claude artifact | hosted on claude.ai | the single-file build, plus account sync and a "Save edits into the page" button |
 
 They are the **same code** apart from the Claude-only runtime hooks, which are
 inert when `window.claude` is undefined.
@@ -25,8 +27,15 @@ inert when `window.claude` is undefined.
 ## Feature list (all implemented and working)
 
 **Reference**
+- Algorithm sets, their groups and cases, default formulas, and which sets are
+  open all come from **`config.json`**. The toolbar's **View** checkboxes open or
+  close sets per user; `config.open` is the default.
 - 2-Look OLL: 3 edge cases, 7 corner cases. 2-Look PLL: 4 corner cases
-  (Headlights, Diagonal, Aa, Ab), 4 edge cases (Ua, Ub, Z, H).
+  (Headlights, Diagonal, Aa, Ab), 4 edge cases (Ua, Ub, Z, H). Open by default.
+- F2L: 12 left-hand cases into the **front-left** slot, in three groups (basic
+  inserts, white on the side, white on top), each as an L-side and F-side
+  variant. Closed by default. Only cases with both pieces in the top layer,
+  because the diagram is a top view.
 - Every formula is **editable inline**; the diagram regenerates from the formula
   as you type. There is no stored case picture.
 - Diagrams are SVG, drawn from the top with the front at the bottom, with
@@ -56,20 +65,22 @@ inert when `window.claude` is undefined.
 - Collapses to a usable one-line bar (clock + scramble) that still times solves.
 
 **Layout**
-- Desktop: timer sidebar left, OLL and PLL columns. Used only when it all fits.
+- Desktop: timer sidebar left, one column per open set. Used only when it all
+  fits (two sets ≈ ≥1000px, three ≈ ≥1400px).
 - Compact (whenever the desktop layout doesn't fit the window, measured, not a
   fixed breakpoint): timer as a sticky top bar, toolbar behind a **Menu** dropdown,
-  times list behind **Times ▾**, OLL/PLL side by side, 46px diagrams. There is no
-  longer an intermediate single-column layout.
+  times list behind **Times ▾**, at most two sets side by side (a third wraps
+  below), 46px diagrams. There is no intermediate single-column layout.
 - **Print sheet** button: one-page, two-column, no chrome, always light colours,
   collapsed sections printed open.
 - **Theme** button: auto → light → dark, remembered.
 
 **Data portability**
-- Edits, marks and collapse state persist in localStorage.
+- Edits, marks, collapse state and the View choice persist in localStorage.
 - **Export .json** / **Import .json** to move them between browsers and builds.
-- **Download offline copy**: regenerates a complete standalone HTML with the
-  current formulas baked in as the new defaults.
+- **Download offline copy**: regenerates a complete standalone HTML (all CSS, JS
+  and config inlined) with the current formulas, marks and view baked in as the
+  new defaults. Works from disk.
 - Claude build only: syncs to the Claude account, and "Save edits into the page"
   rewrites the published artifact's defaults.
 
@@ -83,9 +94,15 @@ inert when `window.claude` is undefined.
 - **Sune/Antisune composition notes** (H = Sune twice, Pi = Sune U Sune, etc.) were
   added as a second formula field, then as a note line, then in the case name —
   **all removed**. The user did not want them.
-- **An F2L section** was built (11 cases, 3 groups, own diagram mask) and then
-  **removed**. The `f2l` mask branch still exists in `colour()` and `update()` if
-  it is ever wanted back.
+- **F2L**: an earlier F2L section (11 cases) was built and removed. It was
+  **re-added on the user's request** as a config set that is closed by default.
+  It's left-handed (front-left slot), with the `f2l` mask retargeted from
+  front-right to front-left.
+- **Code split into files + `config.json`** (user's request): sets are "view
+  options"; which are open is defined in the config and toggled under View. This
+  replaced the old single-file design (markup in a `SKELETON` string, user
+  defaults in a `/*BAKED*/` blob). The blob's formulas, marks and collapsed groups
+  were migrated into `config.json`.
 - **Cube colours** were changed to "more natural" pigments and **reverted**; the
   current palette is the one the user wants.
 - **Scramble "B/D bias"** was investigated: measured uniform over 400k moves
@@ -97,9 +114,16 @@ inert when `window.claude` is undefined.
 
 ## Verified
 
-- All 18 formulas were checked programmatically: each solves the case it is
+- All 18 OLL/PLL formulas were checked programmatically: each solves the case it is
   labelled as, under some AUF, and none disturbs the first two layers. Verified
   with deliberately swapped references to prove the check can fail.
+- All 12 F2L formulas: each inserts the front-left pair from a top-layer position
+  and leaves the cross and the other three slots intact. They are mirrors of
+  standard right-hand algorithms.
+- After the restructure, the formulas loaded from `config.json` are identical to
+  the old baked ones. The served site, the in-page offline copy and
+  `tools/build.js` output all load without errors, and the copies can rebuild
+  themselves.
 - Offline load from the service worker cache: confirmed with the network cut.
 - Scramble face distribution: uniform.
 - Cross-length statistics (computed by exhaustive BFS over all 190,080 cross
@@ -115,9 +139,13 @@ inert when `window.claude` is undefined.
   (a few hundred KB).
 - Times are **not** exported in the `.json` and do not sync between devices in the
   self-hosted build.
-- The GitHub copy's baked defaults are a snapshot. Edits made in the Claude version
-  afterwards must be carried over with Export/Import .json.
-- Three-column layouts need ≥1250px; the current build only has two columns.
+- `config.json` is a snapshot. Edits made in the browser or the Claude version
+  afterwards must be carried over with Export/Import .json, or by copying the
+  inline config out of a downloaded offline copy.
+- Opening `index.html` straight from disk doesn't load the cases (`file://`
+  blocks fetching `config.json`). Use a web server, or the single-file build.
+- F2L diagrams are top views, so F2L cases with a piece already in the slot can't
+  be shown and aren't included.
 - No per-case practice timing or trainer mode.
 
 ---
@@ -133,7 +161,8 @@ Roughly in the order the user found them interesting:
 2. **Per-case times** feeding back into which cases are actually slow.
 3. **Tag each solve** with the OLL/PLL case encountered, to expose recognition gaps.
 4. Step through a formula move by move on the diagram.
-5. Full OLL (57) and PLL (21) behind a toggle — the engine already handles any case.
+5. Full OLL (57) and PLL (21) as extra sets in `config.json`. The engine and
+   View toggle already handle them; it's data entry plus verification.
 6. Right-hand mirror toggle for the whole page.
 7. CSV export / csTimer import.
 8. **CUBOTino integration**: the user has a CUBOTino-style robot interest and an
@@ -146,25 +175,28 @@ Roughly in the order the user found them interesting:
 
 ## Maintenance rules
 
-- **Bump `CACHE` in `sw.js`** on every `index.html` upload, or installed devices
-  keep serving the old version.
-- **Never touch `/*BAKED*/…/*END*/`** unless you intend to discard the user's saved
-  formulas and marks.
-- **Markup lives in the `SKELETON` string**, not in a visible `<body>`.
-- Case ids are permanent keys for stored data.
+- **Bump `CACHE` in `sw.js`** whenever any app file changes, and list new files
+  in `ASSETS`, or installed devices keep serving the old version.
+- **`config.json` holds the user's formulas, marks and collapsed groups as
+  defaults.** Don't reset them to textbook values.
+- Case and set ids are permanent keys for stored data.
+- After changing the app, run `node tools/build.js` before publishing to Claude.
 
 ---
 
 ## Repo contents
 
 ```
-index.html              the app
+index.html              markup; links the CSS and scripts
+config.json             algorithm sets, open sets, default marks
+css/app.css             styles
+js/                     cube.js, store.js, cases.js, timer.js, ui.js, app.js
 manifest.json           PWA manifest
 sw.js                   service worker (cache-first)
-icon-192.png
-icon-512.png
-icon-512-maskable.png
+icons/                  icon-192.png, icon-512.png, icon-512-maskable.png
+tools/build.js          single-file build → dist/ (git-ignored)
 README.md               install and deploy instructions
-ARCHITECTURE.md         how the code works
-STATUS.md               this file
+CLAUDE.md               rules for AI-assisted editing
+docs/ARCHITECTURE.md    how the code works
+docs/STATUS.md          this file
 ```
