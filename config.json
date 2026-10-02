@@ -98,6 +98,69 @@
           ]
         }
       ]
+    },
+    {
+      "id": "f2l-adv",
+      "title": "F2L advanced",
+      "groups": [
+        {
+          "n": 1,
+          "label": "Both on top",
+          "mask": "f2l-slot",
+          "cases": [
+            { "id": "f2la-apart-green-green-on-top", "name": "Apart, green + green on top", "alg": "U L' U2 L U2 L' U L" },
+            { "id": "f2la-apart-red-red-on-top", "name": "Apart, red + red on top", "alg": "U' F U2 F' U2 F U' F'" },
+            { "id": "f2la-split-green-green-on-top", "name": "Split, green + green on top", "alg": "F U' F' U2 L' U' L" },
+            { "id": "f2la-split-red-red-on-top", "name": "Split, red + red on top", "alg": "L' U L U2 F U F'" },
+            { "id": "f2la-apart-white-green-on-top", "name": "Apart, white + green on top", "alg": "U2 L' U' L U' L' U L" },
+            { "id": "f2la-apart-white-red-on-top", "name": "Apart, white + red on top", "alg": "U2 F U F' U F U' F'" },
+            { "id": "f2la-split-green-red-on-top", "name": "Split, green + red on top", "alg": "L' U2 L U' F U F'" },
+            { "id": "f2la-apart-red-green-on-top", "name": "Apart, red + green on top", "alg": "L' U' L U' L' U' L" },
+            { "id": "f2la-apart-green-red-on-top", "name": "Apart, green + red on top", "alg": "L' U' L U2 F U F'" },
+            { "id": "f2la-split-red-green-on-top", "name": "Split, red + green on top", "alg": "F U2 F' U L' U' L" },
+            { "id": "f2la-split-white-green-on-top", "name": "Split, white + green on top", "alg": "F' L F L' U' L' U' L" },
+            { "id": "f2la-split-white-red-on-top", "name": "Split, white + red on top", "alg": "L F' L' F U F U F'" }
+          ]
+        },
+        {
+          "n": 2,
+          "label": "Corner in slot",
+          "mask": "f2l-slot",
+          "cases": [
+            { "id": "f2la-white-left-green-on-top", "name": "White left, green on top", "alg": "F U' F' L' U' L" },
+            { "id": "f2la-white-front-red-on-top", "name": "White front, red on top", "alg": "L' U L F U F'" },
+            { "id": "f2la-white-down-green-on-top", "name": "White down, green on top", "alg": "U L F' L' F L' U' L" },
+            { "id": "f2la-white-down-red-on-top", "name": "White down, red on top", "alg": "U' L' U L F' L F L'" },
+            { "id": "f2la-white-front-green-on-top", "name": "White front, green on top", "alg": "L' U L U' L' U L" },
+            { "id": "f2la-white-left-red-on-top", "name": "White left, red on top", "alg": "F U' F' U F U' F'" }
+          ]
+        },
+        {
+          "n": 3,
+          "label": "Edge in slot",
+          "mask": "f2l-slot",
+          "cases": [
+            { "id": "f2la-red-on-top-edge-in-place", "name": "Red on top, edge in place", "alg": "U L' U2 L U' L' U' L" },
+            { "id": "f2la-green-on-top-edge-in-place", "name": "Green on top, edge in place", "alg": "U' F U2 F' U F U F'" },
+            { "id": "f2la-red-on-top-edge-flipped", "name": "Red on top, edge flipped", "alg": "U' F U F' U L' U' L" },
+            { "id": "f2la-green-on-top-edge-flipped", "name": "Green on top, edge flipped", "alg": "U L' U' L U' F U F'" },
+            { "id": "f2la-white-on-top-edge-flipped", "name": "White on top, edge flipped", "alg": "U L F' L' F L' U L" },
+            { "id": "f2la-white-on-top-edge-in-place", "name": "White on top, edge in place", "alg": "L F' L' F U' F U F'" }
+          ]
+        },
+        {
+          "n": 4,
+          "label": "Both in slot",
+          "mask": "f2l-slot",
+          "cases": [
+            { "id": "f2la-corner-in-place-edge-flipped", "name": "Corner in place, edge flipped", "alg": "L2 U2 F' L2 F U2 L U' L" },
+            { "id": "f2la-white-left-edge-in-place", "name": "White left, edge in place", "alg": "L' U2 L' U' L U' L' U2 L2" },
+            { "id": "f2la-white-left-edge-flipped", "name": "White left, edge flipped", "alg": "L' U L F U' F' U2 F U F'" },
+            { "id": "f2la-white-front-edge-flipped", "name": "White front, edge flipped", "alg": "F U' F' L' U L U2 L' U' L" },
+            { "id": "f2la-white-front-edge-in-place", "name": "White front, edge in place", "alg": "L' U L U L' U' L U2 L' U L" }
+          ]
+        }
+      ]
     }
   ]
 }

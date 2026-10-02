@@ -37,8 +37,13 @@ inert when `window.claude` is undefined.
   (Headlights, Diagonal, Aa, Ab), 4 edge cases (Ua, Ub, Z, H). Shown by default.
 - F2L: 12 left-hand cases into the **front-left** slot, in three groups (basic
   inserts, white on the side, white on top), each as an L-side and F-side
-  variant. Only cases with both pieces in the top layer, because the diagram is a
-  top view.
+  variant. Top-view diagrams.
+- F2L advanced: the other **29** front-left cases, so F2L + F2L advanced cover
+  all 41. Groups: both on top (12), corner in slot (6), edge in slot (6), both in
+  slot (5). The diagram (`f2l-slot`) adds the slot's front and left stickers next
+  to the top view. Names describe what you see, e.g. "Split, green + red on top"
+  (corner colour + edge colour facing up), "White left, red on top", "Corner in
+  place, edge flipped".
 - Every formula is **editable inline**; the diagram regenerates from the formula
   as you type. There is no stored case picture.
 - Diagrams are SVG, drawn from the top with the front at the bottom, with
@@ -46,10 +51,12 @@ inert when `window.claude` is undefined.
 - PLL diagrams carry **arrows**: solid for the pieces that step is about,
   thin/dashed/faded for the pieces the formula also moves. Double-headed = swap,
   single-headed = 3-cycle.
-- Validation per case: unparseable moves, "Breaks the first two layers",
-  "Does nothing to the last layer", "Finish with U" for a leftover AUF.
+- Validation per case, **without any text under the formula**: a typo turns the
+  formula box red; "breaks the first two layers / other slots" or "does nothing"
+  turns it orange. The reason shows on hover. Valid formulas show nothing. (A
+  message line, including "Finish with U", was removed at the user's request.)
 - **Mirror** button (left↔right) and **Reset** per case.
-- Probability of each case shown in small grey text in the left strip.
+- Probability of each case shown in small grey text next to its name.
 - Cases sorted most-common-first; Sune and Antisune lead the OLL corners because
   the other cases are built from them.
 
@@ -68,12 +75,19 @@ inert when `window.claude` is undefined.
 - Collapses to a usable one-line bar (clock + scramble) that still times solves.
 
 **Layout**
-- **Full and compact views have the same structure**: title + **Menu** dropdown,
-  the timer as a sticky bar across the top (times behind **Times ▾**, ▴ shrinks
-  it to one line), two columns.
-- Full view: 74px diagrams, Mirror/Reset shown. Compact: the same at smaller sizes
-  (46px diagrams, Mirror/Reset hidden). Compact is used whenever the two columns
-  don't fit at full size (measured, ≈ <1000px wide), not at a fixed breakpoint.
+- Both views: title + **Menu** dropdown, the same timer contents (times behind
+  **Times ▾**; the fold button shrinks it to one line), two columns, the same
+  small text sizes.
+- Full view (PC): timer as a sticky **sidebar on the left**, Mirror/Reset shown.
+  Compact: timer as a sticky **bar on top**, Mirror/Reset hidden. Cube size is
+  the same in both. Compact is used whenever sidebar + two columns don't fit
+  (measured, ≈ <1000px wide), not at a fixed breakpoint.
+- Case row: ▾ ○ icons side by side, the cube, then the name (with the % next to
+  it, Mirror/Reset at the right) and the formula under the name. The cube is as
+  tall as name + formula; the icons sit on the name line. A collapsed case is the
+  same row without cube and formula: ▸ ○ name, icons in the same place.
+- **Text size − / +** in the Menu, 12–22px (default 16), scales text and cubes.
+  Stored only in this browser, not in `config.json`, exports or offline copies.
 - **Print sheet** button: one-page, two-column, no chrome, always light colours,
   collapsed sections printed open.
 - **Theme** button: auto → light → dark, remembered.
@@ -110,9 +124,16 @@ inert when `window.claude` is undefined.
   any number of columns was replaced by this.
 - **Marks live on the config lines** (user's request): `status`/`shut` on each
   case, `shut` on groups, not in separate top-level maps.
-- **Full and compact views share one structure** (user's request): the old
-  desktop sidebar timer and inline toolbar were dropped in favour of the compact
-  view's top timer bar and Menu dropdown. Compact differs only in sizes.
+- **Full and compact views are kept alike** (user's request): one Menu dropdown
+  (no inline toolbar), the same text sizes (small), the same timer contents.
+  **On PC the timer stays a sidebar on the left**; only compact puts it on top.
+  (A version with the top bar on PC too was tried and rejected.)
+- **Case rows** (user's request): open rows are built like collapsed ones (icons
+  side by side, then cube, then name with the formula under it); collapsed rows
+  drop the cube and formula. Earlier versions were rejected: a bold, larger name
+  on collapsed rows, and collapsed names aligned to the open rows' column.
+- **Text size is a per-browser setting** (user's request), never stored in the
+  config.
 - **Cube colours** were changed to "more natural" pigments and **reverted**; the
   current palette is the one the user wants.
 - **Scramble "B/D bias"** was investigated: measured uniform over 400k moves
@@ -130,6 +151,12 @@ inert when `window.claude` is undefined.
 - All 12 F2L formulas: each inserts the front-left pair from a top-layer position
   and leaves the cross and the other three slots intact. They are mirrors of
   standard right-hand algorithms.
+- F2L advanced: generated, not typed from memory. Every front-left pair position
+  was classified (41 classes mod AUF; the 12 basic ones skipped). Mirrored
+  standard algorithms plus a search over up to 3 inserts (`L' U L`, `F U F'`,
+  sledgehammers, with U turns between) were tried. Each case got the shortest
+  formula that solves it and keeps the cross and other slots, with known
+  algorithms preferred unless 2+ moves longer. All 29 pass the in-app check.
 - After the restructure, the formulas loaded from `config.json` are identical to
   the old baked ones. The served site, the in-page offline copy and
   `tools/build.js` output all load without errors, and the copies can rebuild
@@ -154,8 +181,10 @@ inert when `window.claude` is undefined.
   inline config out of a downloaded offline copy.
 - Opening `index.html` straight from disk doesn't load the cases (`file://`
   blocks fetching `config.json`). Use a web server, or the single-file build.
-- F2L diagrams are top views, so F2L cases with a piece already in the slot can't
-  be shown and aren't included.
+- At the current cube size (name + formula height) the F2L advanced diagrams,
+  which also draw the slot, are small; larger text size helps.
+- Some F2L advanced formulas come from the search rather than a named standard
+  algorithm. They're correct but may not be the most finger-friendly; edit freely.
 - No per-case practice timing or trainer mode.
 
 ---

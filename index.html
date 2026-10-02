@@ -20,9 +20,10 @@
 <body><div id="app"><div class="wrap">
 <div class="top"><h1>Speedcubing Assistant</h1>
 <div class="menuwrap"><button id="menuBtn" type="button" class="menubtn" aria-expanded="false">Menu &#9662;</button>
-<div class="tools" id="tools"><button id="dlHtml" type="button">Download offline copy</button><button id="exJson" type="button">Export .json</button><label class="btnlike" for="imJson">Import .json</label><input id="imJson" type="file" accept=".json,application/json" hidden><button id="bake" type="button" hidden>Save edits into the page</button><button id="print" type="button">Print sheet</button><button id="theme" type="button">Theme: auto</button><button id="resetAll" type="button">Reset all</button><span id="sync" class="sync"></span></div></div></div>
+<div class="tools" id="tools"><button id="dlHtml" type="button">Download offline copy</button><button id="exJson" type="button">Export .json</button><label class="btnlike" for="imJson">Import .json</label><input id="imJson" type="file" accept=".json,application/json" hidden><button id="bake" type="button" hidden>Save edits into the page</button><button id="print" type="button">Print sheet</button><button id="theme" type="button">Theme: auto</button><div class="textsize"><span>Text size</span><button id="txtMinus" type="button" aria-label="Smaller text">&minus;</button><span id="txtVal">16</span><button id="txtPlus" type="button" aria-label="Larger text">+</button></div><button id="resetAll" type="button">Reset all</button><span id="sync" class="sync"></span></div></div></div>
+<div class="layout">
 <aside id="timer" class="side">
-<button id="tFold" class="tfold" type="button" title="Shrink timer">&#9652;</button>
+<button id="tFold" class="tfold" type="button" title="Shrink timer"></button>
 <div class="tbody">
 <div class="thead"><h2>Timer</h2><button id="tNew" type="button" class="small">New scramble</button><label class="insp"><input type="checkbox" id="tInsp"> 15s inspection</label></div>
 <div id="tScr" class="scramble"></div>
@@ -35,6 +36,7 @@
 <div class="grid" id="grid">
 <section class="col"><div class="colhead"><select class="setpick" aria-label="Left column"></select><span class="chev">&#9662;</span></div><div class="colbody"></div></section>
 <section class="col"><div class="colhead"><select class="setpick" aria-label="Right column"></select><span class="chev">&#9662;</span></div><div class="colbody"></div></section>
+</div>
 </div>
 <div id="stash" hidden></div>
 </div></div>

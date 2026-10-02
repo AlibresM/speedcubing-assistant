@@ -50,13 +50,19 @@ function isEdge(p){return Math.abs(p[0])+Math.abs(p[2])===1}
 const inPair=s=>(s.h[0]===-1&&s.h[2]===1&&(s.h[1]===-1||s.h[1]===0));
 function colour(s,mask){
  const c=COL[s.f];
- if(mask==="f2l")return inPair(s)?c:GRAY;
+ if(mask==="f2l"||mask==="f2l-slot")return inPair(s)?c:GRAY;
  if(mask==="oll"||mask==="edges"){ if(mask==="edges"&&isCorner(s.p))return GRAY; return s.f==="U"?c:GRAY; }
  if(mask==="corners"&&isEdge(s.p))return GRAY;
  return c}
 function draw(st,mask){
- const T=12,C=25,O=0.5;let out=`<svg viewBox="0 0 100 100" role="img" aria-label="Last layer diagram">`;
+ const T=12,C=25,O=0.5,slot=mask==="f2l-slot";
+ // f2l-slot: the top view plus the front-left slot unfolded - its front stickers below the front rim
+ // (middle layer, then bottom layer) and its left stickers left of the left rim
+ let out=`<svg viewBox="${slot?"-26 0 126 126":"0 0 100 100"}" role="img" aria-label="${slot?"Top layer and front-left slot":"Last layer diagram"}">`;
  const r=(x,y,w,h,f)=>`<rect x="${x+O}" y="${y+O}" width="${w-1}" height="${h-1}" rx="2" fill="${f}" stroke="#2a2f3a" stroke-width="1"/>`;
+ if(slot)for(const s of st){const [px,py,pz]=s.p;if(px!==-1||pz!==1||py===1)continue;
+  if(s.n[2]===1)out+=r(T,py===0?100:113,C,T+1,colour(s,mask));
+  else if(s.n[0]===-1)out+=r(py===0?-13:-26,T+2*C,T+1,C,colour(s,mask))}
  for(const s of st){if(s.p[1]!==1)continue;const [px,,pz]=s.p;const [nx,ny,nz]=s.n;const col=colour(s,mask);
   const cx=T+(px+1)*C, cz=T+(pz+1)*C;
   if(ny===1)out+=r(cx,cz,C,C,col);

@@ -112,7 +112,7 @@ and the status line says "Offline copy".
 * **cases[].alg**: the default formula. **The diagram is generated from it**;
   there is no stored case picture.
 * **mask**: per group; decides diagram colouring and validation (§4):
-  `"edges"` | `"oll"` | `"corners"` | `"full"` | `"f2l"`.
+  `"edges"` | `"oll"` | `"corners"` | `"full"` | `"f2l"` | `"f2l-slot"`.
 * **prob**: optional display string only.
 * **status** (case, optional): `"learning"` or `"learned"`. **shut** (case or
   group, optional): `true` = collapsed. These are defaults until the user changes
@@ -160,7 +160,7 @@ apply(st, invert(parse(formula)));
 
 The result *is* the position the formula solves, so formula and picture can't
 drift apart. For PLL masks, `update()` also tries all four AUF turns and keeps the
-one that moves the fewest pieces; any leftover turn is reported as "Finish with U".
+one that moves the fewest pieces.
 
 ---
 
@@ -178,10 +178,12 @@ plus a rim of side stickers. Front is at the bottom.
 | `corners` | corners only (PLL step 1), with arrows |
 | `full` | everything (PLL step 2), with arrows |
 | `f2l` | the **front-left** corner + edge pair only (`inPair`) |
+| `f2l-slot` | as `f2l`, plus the front-left slot unfolded: its front stickers below the front rim and its left stickers left of the left rim (middle layer nearest, bottom layer outside); viewBox `-26 0 126 126` |
 
 F2L is left-handed: the target slot is front-left, and cases insert with `L` / `F`.
-The top-down diagram can only show pieces in the top layer, so F2L cases with a
-piece already in the slot aren't included.
+Validation for both F2L masks: everything except the pair and the top layer must
+be solved ("Breaks the other slots or the cross"), and the pair must be out of
+place *or* twisted/flipped in place ("Does nothing to the pair").
 
 `arrows(st, mask)` draws an arrow for each displaced top-layer piece. Swaps get
 double heads and 3-cycles single heads. Pieces from the other sub-step are drawn
@@ -189,13 +191,17 @@ thin, dashed and faded.
 
 ### `update(li, id, mask)` (`cases.js`)
 
-Per case row: parse → state → `draw` → `.pic`, resize the textarea, set the message.
+Per case row: parse → state → `draw` → `.pic`, resize the textarea, flag problems.
+There is **no message line** under the formula (the user rejected it). A problem
+sets a class on the textarea, which colours its border, and puts the reason in
+its `title` (hover):
 
-* parse error → the message
-* `f2l`: "Breaks the other slots or the cross" / "Does nothing to the pair"
-* otherwise `checkF2L` fails → "Breaks the first two layers"
-* `isSolvedLL` → "Does nothing to the last layer"
-* leftover AUF → "Finish with U"
+* parse error → `.err` (red), e.g. "Unknown move: Q"
+* `f2l` / `f2l-slot`: "Breaks the other slots or the cross" / "Does nothing to
+  the pair" → `.warn` (orange)
+* otherwise `checkF2L` fails → "Breaks the first two layers" → `.warn`
+* `isSolvedLL` → "Does nothing to the last layer" → `.warn`
+* valid → no class, no title
 
 **There is no stored "expected" answer**; validation is structural.
 
@@ -217,6 +223,7 @@ Picking the set the other column shows swaps the two columns.
 | `twolook-algs-v1` | `{ algs: {id: formula}, status: {id: "learning"\|"learned"}, shut: {id\|groupKey: 1}, open: [setId]\|null, at: epoch_ms }` |
 | `twolook-times-v1` | `{ times: [{ms, scr, plus2, dnf, at}], shut: bool, insp: bool }`, capped at the last 300 |
 | `twolook-theme` | `"auto"` \| `"light"` \| `"dark"` |
+| `twolook-text` | root font size in px, `12`–`22`; local only |
 
 Only **changed** formulas go into `algs`; a value equal to the config default is
 deleted, so `Reset` and later config changes behave predictably. `open` (the
@@ -280,22 +287,41 @@ combination works:
 :root[data-theme="dark"] { ... }                            /* explicit */
 ```
 
-**Both views have the same structure**: title + **Menu** dropdown (all actions and
-the `#sync` line), the timer as a sticky bar across the top (scramble, clock on
-the right, one-line stats, times behind **Times ▾**), then two columns. The ▴ button
-shrinks the timer bar to one line (clock + scramble).
+Both views share the title + **Menu** dropdown (all actions and the `#sync` line),
+the same timer contents (scramble, clock, one-line stats, times behind
+**Times ▾**), two columns, and **the same text sizes** (the small ones).
 
-* **Full**: 74px diagrams, Mirror/Reset visible, larger type. `.wrap` max 1280px.
-* **Compact**: the same page with smaller sizes: 46px diagrams, smaller type,
-  Mirror/Reset hidden. All rules are `.compact …` size overrides inside
-  `@media screen`; **put structure in the base rules, not under `.compact`**.
+* **Full**: the timer is a 250px sticky **sidebar on the left** (`.layout` flex
+  row), with Mirror/Reset visible. `.wrap` max 1280px.
+* **Compact**: the timer is a sticky **bar on top** (clock on the right), with
+  Mirror/Reset hidden. All rules are `.compact …` overrides inside
+  `@media screen`: timer placement and spacing. Keep text and cube sizes in the
+  base rules.
+
+The fold button shrinks the timer to one line (clock + scramble). It carries both
+glyphs (`.g-side` ◂/▸, `.g-top` ▴/▾) and CSS shows the one for the current view.
+
+A case row is `[fold status] [cube] [name % … Mirror Reset / formula]`.
+A collapsed case (`.case.shut`) is the same row without the cube, %, formula and
+buttons, so it's one slim line: `[fold status] name`. Two custom properties on
+`.case` keep it consistent:
+- `--nameh`: the name line's height. The icon strip and buttons are that tall,
+  so the icons sit on the name line in the same place, open or collapsed.
+- `--algh`: a one-line formula box. The cube is `--nameh + 2px + --algh`
+  square, i.e. as tall as name + formula. A formula that wraps grows past it.
+
+**Text size** (Menu → *Text size − n +*) sets the root font size, 12–22px in 1px
+steps (default 16). Everything is in `rem`, cubes included, so it all scales.
+It's stored only in this browser (`twolook-text`), never in the config, exports
+or offline copies.
 * **Print**: no timer or menu, light colours, collapsed sections opened, the two
   columns.
 
 There is no width breakpoint. `layout()` (`ui.js`) removes `html.compact`, measures,
-and puts the class back unless every case header (name + Mirror + Reset) of the two
-shown sets fits on one line in its column (hidden probe row) and nothing scrolls
-sideways. Only width matters: it runs on boot, after fonts load, when a column's
+and puts the class back unless, with the sidebar in place, every case header
+(name + % + Mirror + Reset) of the two shown sets fits on one line in its column
+(hidden probe row) and nothing scrolls sideways. The sidebar has
+`max-height: 100vh - 16px` and scrolls itself, so window height never forces compact. Only width matters: it runs on boot, after fonts load, when a column's
 set changes, and on resizes that change the width. Height-only resizes (on-screen
 keyboard, mobile address bar) are ignored. Roughly ≥1000px wide gets the full view.
 

@@ -10,11 +10,10 @@ function renderSets(){
    all+=`<div class="step" data-step="${esc(set.id)}${g.n}"><h3><span class="stepn">${g.n}</span>${esc(g.label)}<span class="chev">▾</span></h3><ul class="cases">`;
    for(const c of g.cases){defaults[c.id]=c.alg;
     all+=`<li class="case" data-id="${esc(c.id)}" data-mask="${esc(g.mask)}">
-    <div class="strip"><button type="button" class="fold" title="Collapse">▾</button><button type="button" class="st"></button><span class="prob" title="How often this case comes up">${esc(c.prob||"")}</span></div>
+    <div class="strip"><button type="button" class="fold" title="Collapse">▾</button><button type="button" class="st"></button></div>
     <div class="pic"></div><div class="txt">
-    <div class="row1"><span class="name">${esc(c.name)}</span><button type="button" class="mir">Mirror</button><button type="button" class="rst">Reset</button></div>
-    <textarea class="alg" rows="1" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="${esc(c.name)} formula"></textarea>
-    <div class="msg"></div></div></li>`}
+    <div class="row1"><span class="name">${esc(c.name)}</span><span class="prob" title="How often this case comes up">${esc(c.prob||"")}</span><button type="button" class="mir">Mirror</button><button type="button" class="rst">Reset</button></div>
+    <textarea class="alg" rows="1" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="${esc(c.name)} formula"></textarea></div></li>`}
    all+=`</ul></div>`}
   all+=`</div>`}
  document.getElementById("stash").innerHTML=all;
@@ -29,26 +28,27 @@ function renderSets(){
   ta.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();ta.blur()}});
   li.querySelector(".rst").onclick=()=>{ta.value=defaults[id];delete saved[id];persist();go()};
   li.querySelector(".mir").onclick=()=>{try{ta.value=mirror(ta.value);ta.dispatchEvent(new Event("input"))}catch(e){go()}}})}
+// No text under the formula: a problem only colours the box (err red, warn orange) and explains itself on hover.
 function update(li,id,mask){
- const ta=li.querySelector(".alg"),pic=li.querySelector(".pic"),msg=li.querySelector(".msg");
+ const ta=li.querySelector(".alg"),pic=li.querySelector(".pic");
+ const note=(kind,text)=>{ta.classList.toggle("err",kind==="err");ta.classList.toggle("warn",kind==="warn");ta.title=text||""};
  fit(ta);
  ta.classList.toggle("changed",ta.value.trim()!==defaults[id]);
- let moves;try{moves=parse(ta.value)}catch(e){msg.textContent=e.message;msg.className="msg err";return}
- let st,auf=0,best=1e9;
+ let moves;try{moves=parse(ta.value)}catch(e){note("err",e.message);return}
+ let st,best=1e9;
  const pll=mask==='corners'||mask==='full';const fix=orientFix(moves);
  for(let k=0;k<(pll?4:1);k++){const t=solved();apply(t,invert(moves.concat(fix,k?[["U",k]]:[])));
-  const moved=t.filter(q=>q.p[1]===1&&!eq(q.p,q.h)).length;if(moved<best){best=moved;st=t;auf=k}}
+  const moved=t.filter(q=>q.p[1]===1&&!eq(q.p,q.h)).length;if(moved<best){best=moved;st=t}}
  pic.innerHTML=draw(st,mask);
- const aufTxt=["",", then U",", then U2",", then U'"][auf];
- if(!moves.length){msg.textContent="Empty formula";msg.className="msg warn"}
- else if(mask==="f2l"){const bad=st.filter(q=>!inPair(q)&&q.h[1]<1&&!(eq(q.p,q.h)&&eq(q.n,NORM[q.f])));
-  const moved=st.filter(q=>inPair(q)&&!eq(q.p,q.h)).length;
-  if(bad.length){msg.textContent="Breaks the other slots or the cross";msg.className="msg warn"}
-  else if(!moved){msg.textContent="Does nothing to the pair";msg.className="msg warn"}
-  else{msg.textContent="";msg.className="msg"}}
- else if(!checkF2L(st)){msg.textContent="Breaks the first two layers";msg.className="msg warn"}
- else if(isSolvedLL(st)){msg.textContent="Does nothing to the last layer";msg.className="msg warn"}
- else{msg.textContent=aufTxt?"Finish with "+aufTxt.replace(", then ",""):"";msg.className="msg ok"}}
+ if(!moves.length)note("warn","Empty formula");
+ else if(mask==="f2l"||mask==="f2l-slot"){const bad=st.filter(q=>!inPair(q)&&q.h[1]<1&&!(eq(q.p,q.h)&&eq(q.n,NORM[q.f])));
+  const moved=st.filter(q=>inPair(q)&&!(eq(q.p,q.h)&&eq(q.n,NORM[q.f]))).length;   // twisted/flipped in place counts too
+  if(bad.length)note("warn","Breaks the other slots or the cross");
+  else if(!moved)note("warn","Does nothing to the pair");
+  else note()}
+ else if(!checkF2L(st))note("warn","Breaks the first two layers");
+ else if(isSolvedLL(st))note("warn","Does nothing to the last layer");
+ else note()}
 function fit(t){if(!t.offsetParent){t.style.height="";return}t.style.height="auto";t.style.height=t.scrollHeight+"px"}
 const CYCLE=["","learning","learned"],ICON={"":"○",learning:"◐",learned:"✓"};
 function paint(li){const id=li.dataset.id,st=status[id]||"";
