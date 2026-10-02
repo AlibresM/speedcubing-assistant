@@ -24,7 +24,6 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:Barlow,system-ui
 h1{font-family:"Barlow Semi Condensed",Barlow,sans-serif;font-weight:700;font-size:clamp(1.6rem,3vw,2.2rem);margin:0 0 4px}
 .lead{color:var(--muted);margin:0}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:26px;align-items:start}
-@media (max-width:860px){.grid{grid-template-columns:1fr}}
 .colhead{border-bottom:4px solid var(--yellow);padding-bottom:8px;margin-bottom:12px}
 .colhead h2{font-family:"Barlow Semi Condensed",Barlow,sans-serif;font-size:1.6rem;margin:0}
 .colhead p{margin:2px 0 0;color:var(--muted);font-size:.95rem}
@@ -108,77 +107,74 @@ button:focus-visible{outline:2px solid var(--yellow)}
 .times button:hover{color:var(--ink);background:var(--chip)}
 .small{font-size:.75rem}
 .tbot{margin-top:6px}
-@media (max-width:860px){.layout{flex-direction:column}.side{position:static;width:100%;flex-basis:auto}.side.shut{width:100%;flex-basis:auto;align-self:stretch}}
 @media print{.side{display:none}}
 
-/* ---- compact mobile view ---- */
+/* ---- compact view: html.compact is set by layout() whenever the full view doesn't fit ---- */
 .menuwrap{position:relative}
 .menubtn{display:none}
 .histbtn{display:none}
-@media (max-width:620px){
- .menubtn{display:inline-block;font-size:.75rem}
- .menuwrap{margin-left:auto}
- #tools{display:none;position:absolute;right:0;top:calc(100% + 4px);z-index:20;flex-direction:column;align-items:stretch;
+@media screen{
+ .compact .menubtn{display:inline-block;font-size:.75rem}
+ .compact .menuwrap{margin-left:auto}
+ .compact #tools{display:none;position:absolute;right:0;top:calc(100% + 4px);z-index:20;flex-direction:column;align-items:stretch;
   background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:6px;gap:4px;min-width:190px;box-shadow:0 6px 20px rgba(0,0,0,.18)}
- #tools.open{display:flex}
- #tools button,#tools .btnlike{text-align:left;font-size:.8rem;padding:4px 8px;width:100%}
- .sync{text-align:left;font-size:.7rem;flex-basis:auto}
- .histbtn{display:inline-block;grid-area:hist;justify-self:start;margin:2px 0}
- .times{display:none}
- .times.open{display:block}
- .tbot{display:none}
- .tbody:has(.times.open) .tbot{display:flex}
-}
+ .compact #tools.open{display:flex}
+ .compact #tools button,.compact #tools .btnlike{text-align:left;font-size:.8rem;padding:4px 8px;width:100%}
+ .compact .sync{text-align:left;font-size:.7rem;flex-basis:auto}
+ .compact .histbtn{display:inline-block;grid-area:hist;justify-self:start;margin:2px 0}
+ .compact .times{display:none}
+ .compact .times.open{display:block}
+ .compact .tbot{display:none}
+ .compact .tbody:has(.times.open) .tbot{display:flex}
 
-@media (max-width:620px){
- .wrap{padding:8px 8px 24px}
- h1{font-size:1.15rem;margin:0}
- .lead,.colhead p{display:none}
- .top{gap:4px;margin-bottom:6px;align-items:center}
- .tools{gap:4px}.tools button,.btnlike{font-size:.7rem;padding:0 6px}
- .sync{font-size:.7rem}
- .layout{flex-direction:column;gap:8px}
- .side{order:-1;width:100%;flex-basis:auto;position:sticky;top:env(safe-area-inset-top,0px);z-index:5;padding:6px 8px;border-radius:6px}
- .side.shut{width:100%;flex-basis:auto;align-self:stretch}
- .thead h2{font-size:1rem}.insp{font-size:.7rem}
- .tbody{display:grid;grid-template-columns:1fr auto;grid-template-areas:"head head" "scr clock" "stats clock" "hist hist" "list list" "bot bot";gap:2px 8px;align-items:center}
- .thead{grid-area:head}
- .scramble{grid-area:scr;font-size:.8rem;margin:2px 0;min-height:0}
- .srow{display:inline}.srow::after{content:" "}
- #tNew{display:none}
- .clock{grid-area:clock;font-size:1.9rem;padding:4px 10px;min-width:5em}
- .hint{display:none}
- .stats{grid-area:stats;grid-template-columns:repeat(5,auto);gap:0 8px;font-size:.7rem;margin:0}
- .stats span{display:none}
- .stats b::before{font-weight:400;color:var(--muted)}
- .stats b:nth-of-type(1)::before{content:"n "}
- .stats b:nth-of-type(2)::before{content:"best "}
- .stats b:nth-of-type(3)::before{content:"ao5 "}
- .stats b:nth-of-type(4)::before{content:"ao12 "}
- .stats b:nth-of-type(5)::before{content:"mean "}
- .times{grid-area:list;max-height:90px;font-size:.75rem}
- .tbot{grid-area:bot}
- .grid{grid-template-columns:1fr 1fr;gap:6px}
- .colhead{padding-bottom:3px;margin-bottom:3px;border-bottom-width:3px}
- .colhead h2{font-size:1rem}
- .step h3{margin:6px 0 2px;font-size:.9rem;gap:4px}
- .stepn{font-size:.7rem}
- .case{gap:5px;padding:3px 0;align-items:center}
- .strip{flex:0 0 20px;width:20px;overflow:hidden}
- .strip button{width:14px;height:14px;font-size:.65rem}
- .prob{font-size:.58rem}
- .pic{flex:0 0 46px;width:46px;height:46px;padding:2px;border-radius:4px}
- .txt{gap:1px}
- .row1{gap:4px}
- .name{font-size:.75rem}
- .mir,.rst{display:none}
- .alg{font-size:.85rem;padding:1px 4px;word-spacing:.12em}
- .msg{font-size:.65rem}
- .case.shut{padding:1px 0;gap:4px;min-height:0}
- .case.shut .name{font-size:.75rem;line-height:1.2}
- .case.shut .strip{flex-direction:row;align-items:center;gap:3px;flex-basis:auto}
- .case.shut .prob{font-size:.55rem}
- .case.shut .row1{flex-wrap:nowrap;gap:3px}
+ .compact .wrap{padding:8px 8px 24px}
+ .compact h1{font-size:1.15rem;margin:0}
+ .compact .lead,.compact .colhead p{display:none}
+ .compact .top{gap:4px;margin-bottom:6px;align-items:center}
+ .compact .tools{gap:4px}.compact .tools button,.compact .btnlike{font-size:.7rem;padding:0 6px}
+ .compact .layout{flex-direction:column;gap:8px}
+ .compact .side{order:-1;width:100%;flex-basis:auto;position:sticky;top:env(safe-area-inset-top,0px);z-index:5;padding:6px 8px;border-radius:6px}
+ .compact .side.shut{width:100%;flex-basis:auto;align-self:stretch;padding:4px 8px}
+ .compact .side.shut .tbody .times,.compact .side.shut .tbody .tbot{display:none}
+ .compact .thead h2{font-size:1rem}.compact .insp{font-size:.7rem}
+ .compact .tbody{display:grid;grid-template-columns:1fr auto;grid-template-areas:"head head" "scr clock" "stats clock" "hist hist" "list list" "bot bot";gap:2px 8px;align-items:center}
+ .compact .thead{grid-area:head}
+ .compact .scramble{grid-area:scr;font-size:.8rem;margin:2px 0;min-height:0}
+ .compact .srow{display:inline}.compact .srow::after{content:" "}
+ .compact #tNew{display:none}
+ .compact .clock{grid-area:clock;font-size:1.9rem;padding:4px 10px;min-width:5em}
+ .compact .hint{display:none}
+ .compact .stats{grid-area:stats;grid-template-columns:repeat(5,auto);gap:0 8px;font-size:.7rem;margin:0}
+ .compact .stats span{display:none}
+ .compact .stats b::before{font-weight:400;color:var(--muted)}
+ .compact .stats b:nth-of-type(1)::before{content:"n "}
+ .compact .stats b:nth-of-type(2)::before{content:"best "}
+ .compact .stats b:nth-of-type(3)::before{content:"ao5 "}
+ .compact .stats b:nth-of-type(4)::before{content:"ao12 "}
+ .compact .stats b:nth-of-type(5)::before{content:"mean "}
+ .compact .times{grid-area:list;max-height:90px;font-size:.75rem}
+ .compact .tbot{grid-area:bot}
+ .compact .grid{grid-template-columns:1fr 1fr;gap:6px}
+ .compact .colhead{padding-bottom:3px;margin-bottom:3px;border-bottom-width:3px}
+ .compact .colhead h2{font-size:1rem}
+ .compact .step h3{margin:6px 0 2px;font-size:.9rem;gap:4px}
+ .compact .stepn{font-size:.7rem}
+ .compact .case{gap:5px;padding:3px 0;align-items:center}
+ .compact .strip{flex:0 0 20px;width:20px;overflow:hidden}
+ .compact .strip button{width:14px;height:14px;font-size:.65rem}
+ .compact .prob{font-size:.58rem}
+ .compact .pic{flex:0 0 46px;width:46px;height:46px;padding:2px;border-radius:4px}
+ .compact .txt{gap:1px}
+ .compact .row1{gap:4px}
+ .compact .name{font-size:.75rem}
+ .compact .mir,.compact .rst{display:none}
+ .compact .alg{font-size:.85rem;padding:1px 4px;word-spacing:.12em}
+ .compact .msg{font-size:.65rem}
+ .compact .case.shut{padding:1px 0;gap:4px;min-height:0}
+ .compact .case.shut .name{font-size:.75rem;line-height:1.2}
+ .compact .case.shut .strip{flex-direction:row;align-items:center;gap:3px;flex-basis:auto}
+ .compact .case.shut .prob{font-size:.55rem}
+ .compact .case.shut .row1{flex-wrap:nowrap;gap:3px}
 }
 @media print{
  @page{margin:10mm}
@@ -430,7 +426,31 @@ document.querySelectorAll(".case").forEach(li=>{const id=li.dataset.id,mask=li.d
   tb.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();tb.blur()}})}
  li.querySelector(".mir").onclick=()=>{try{ta.value=mirror(ta.value);ta.dispatchEvent(new Event("input"))}catch(e){go()}};
  go()});
-window.addEventListener("resize",()=>document.querySelectorAll(".alg").forEach(fit));
+/* ---- layout: full view only if the timer and both columns fit on screen, else compact ---- */
+function layout(){
+ const r=document.documentElement,grid=document.querySelector(".grid"),side=document.getElementById("timer"),list=document.getElementById("tList");
+ const y=scrollY;r.classList.remove("compact");list.style.maxHeight="";
+ // widest case header: name + Mirror + Reset on one line
+ const probe=document.createElement("div");probe.className="row1";
+ probe.style.cssText="position:absolute;visibility:hidden;width:max-content;flex-wrap:nowrap";
+ probe.innerHTML='<span class="name"></span><button type="button">Mirror</button><button type="button">Reset</button>';
+ grid.appendChild(probe);let need=0;
+ document.querySelectorAll(".case .name").forEach(n=>{probe.firstChild.textContent=n.textContent;need=Math.max(need,probe.offsetWidth)});
+ probe.remove();
+ const col=(grid.clientWidth-parseFloat(getComputedStyle(grid).columnGap))/2;
+ const room=col-26-74-2*8-4-6; // minus strip, picture, gaps and case padding
+ // sticky timer must fit the window height; its times list shrinks to the space left, but needs ~5 rows
+ const shut=side.classList.contains("shut"),listRoom=innerHeight-16-(side.offsetHeight-list.offsetHeight);
+ const fits=room>=need&&(shut||listRoom>=100)&&r.scrollWidth<=r.clientWidth;
+ r.classList.toggle("compact",!fits);
+ if(fits&&!shut)list.style.maxHeight=Math.min(210,listRoom)+"px";
+ document.querySelectorAll(".alg").forEach(fit);
+ if(scrollY!==y)scrollTo(0,y)}
+// the on-screen keyboard resizes the window: don't switch layouts mid-edit, re-check afterwards
+let layoutLater=false;
+window.addEventListener("resize",()=>{const a=document.activeElement;
+ if(a&&(a.tagName==="TEXTAREA"||a.tagName==="INPUT"))layoutLater=true;else layout()});
+document.addEventListener("focusout",()=>{if(layoutLater){layoutLater=false;setTimeout(layout,300)}});
 function loadAll(){document.querySelectorAll(".case").forEach(li=>{const id=li.dataset.id;li.querySelector(".alg:not(.alt)").value=saved[id]??defaults[id];
  const tb=li.querySelector(".alg.alt");if(tb)tb.value=saved[id+"_alt"]??defaults[id+"_alt"];paint(li);update(li,id,li.dataset.mask);updateAlt(li,id)});
  document.querySelectorAll(".step").forEach(paintStep)}
@@ -515,7 +535,7 @@ function tInit(){
  const side=document.getElementById("timer");
  const paintSide=()=>{side.classList.toggle("shut",tShut);
   const b=document.getElementById("tFold");b.innerHTML=tShut?"\u25b8":"\u25c2";b.title=tShut?"Show timer":"Hide timer"};
- document.getElementById("tFold").onclick=()=>{tShut=!tShut;tSave();paintSide()};paintSide();
+ document.getElementById("tFold").onclick=()=>{tShut=!tShut;tSave();paintSide();layout()};paintSide();
  const ins=document.getElementById("tInsp");ins.checked=tInsp;
  ins.onchange=()=>{tInsp=ins.checked;tSave();document.getElementById("tHint").textContent=tInsp?"Hold space \u2014 release to start inspection":"Hold space (or touch) \u2014 release to start"};
  ins.onchange();
@@ -536,6 +556,8 @@ function tInit(){
   e.preventDefault();endHold()});
  setScr();renderTimes()}
 tInit();
+layout();
+if(document.fonts)document.fonts.ready.then(layout);
 
 /* ---- theme + print ---- */
 const THKEY="twolook-theme";

@@ -251,9 +251,24 @@ times so it works in all combinations:
 Three layouts:
 
 * **Desktop** — `.layout` flex: 250px timer sidebar (sticky) + two-column `.grid`.
-* **Compact, ≤620px** — timer becomes a sticky bar at the top (CSS grid with named
+* **Compact** — timer becomes a sticky bar at the top (CSS grid with named
   areas), toolbar collapses into a **Menu** dropdown, times list collapses behind
-  **Times ▾**, OLL and PLL stay side by side with 46px diagrams.
+  **Times ▾**, OLL and PLL stay side by side with 46px diagrams. All rules are
+  `.compact …` selectors inside `@media screen`.
+
+There is no width breakpoint. `layout()` removes `html.compact`, measures the
+desktop layout, and puts the class back unless everything fits:
+- every case header (name + Mirror + Reset) fits on one line in its column
+  (measured with a hidden probe row, so collapsed cases don't change the result);
+- the sticky timer fits the window height with room for ~5 rows of times (100px);
+  the times list's `max-height` is then set inline to the space left (up to 210px),
+  so the mode doesn't flip as solves accumulate (a hidden timer always fits);
+- no horizontal scroll.
+
+It runs on load, after web fonts load, on resize and when the timer is shown or
+hidden. A resize while a text field has focus (on-screen keyboard) is deferred
+until focus leaves. In practice the full view needs roughly ≥1000px wide and
+≥~550px tall (with the timer shown).
 * **Print** — hides timer, buttons, status circles and chevrons, forces light
   colours regardless of theme, opens collapsed sections, two columns, fits one page.
 
