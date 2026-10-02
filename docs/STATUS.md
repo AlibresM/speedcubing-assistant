@@ -27,15 +27,18 @@ inert when `window.claude` is undefined.
 ## Feature list (all implemented and working)
 
 **Reference**
-- Algorithm sets, their groups and cases, default formulas, and which sets are
-  open all come from **`config.json`**. The toolbar's **View** checkboxes open or
-  close sets per user; `config.open` is the default.
+- Algorithm sets, their groups and cases, default formulas, default marks
+  (`status`/`shut` on each case line, `shut` on groups) and the default columns
+  all come from **`config.json`**.
+- **Always two columns.** Each column's header is a dropdown of all sets; picking
+  the set the other column shows swaps them. `config.open` gives the defaults;
+  the user's pick is remembered. No set descriptions.
 - 2-Look OLL: 3 edge cases, 7 corner cases. 2-Look PLL: 4 corner cases
-  (Headlights, Diagonal, Aa, Ab), 4 edge cases (Ua, Ub, Z, H). Open by default.
+  (Headlights, Diagonal, Aa, Ab), 4 edge cases (Ua, Ub, Z, H). Shown by default.
 - F2L: 12 left-hand cases into the **front-left** slot, in three groups (basic
   inserts, white on the side, white on top), each as an L-side and F-side
-  variant. Closed by default. Only cases with both pieces in the top layer,
-  because the diagram is a top view.
+  variant. Only cases with both pieces in the top layer, because the diagram is a
+  top view.
 - Every formula is **editable inline**; the diagram regenerates from the formula
   as you type. There is no stored case picture.
 - Diagrams are SVG, drawn from the top with the front at the bottom, with
@@ -65,22 +68,22 @@ inert when `window.claude` is undefined.
 - Collapses to a usable one-line bar (clock + scramble) that still times solves.
 
 **Layout**
-- Desktop: timer sidebar left, one column per open set. Used only when it all
-  fits (two sets ≈ ≥1000px, three ≈ ≥1400px).
-- Compact (whenever the desktop layout doesn't fit the window, measured, not a
-  fixed breakpoint): timer as a sticky top bar, toolbar behind a **Menu** dropdown,
-  times list behind **Times ▾**, at most two sets side by side (a third wraps
-  below), 46px diagrams. There is no intermediate single-column layout.
+- **Full and compact views have the same structure**: title + **Menu** dropdown,
+  the timer as a sticky bar across the top (times behind **Times ▾**, ▴ shrinks
+  it to one line), two columns.
+- Full view: 74px diagrams, Mirror/Reset shown. Compact: the same at smaller sizes
+  (46px diagrams, Mirror/Reset hidden). Compact is used whenever the two columns
+  don't fit at full size (measured, ≈ <1000px wide), not at a fixed breakpoint.
 - **Print sheet** button: one-page, two-column, no chrome, always light colours,
   collapsed sections printed open.
 - **Theme** button: auto → light → dark, remembered.
 
 **Data portability**
-- Edits, marks, collapse state and the View choice persist in localStorage.
+- Edits, marks, collapse state and the column choice persist in localStorage.
 - **Export .json** / **Import .json** to move them between browsers and builds.
 - **Download offline copy**: regenerates a complete standalone HTML (all CSS, JS
-  and config inlined) with the current formulas, marks and view baked in as the
-  new defaults. Works from disk.
+  and config inlined) with the current formulas, marks and columns baked in as
+  the new defaults. Works from disk.
 - Claude build only: syncs to the Claude account, and "Save edits into the page"
   rewrites the published artifact's defaults.
 
@@ -95,14 +98,21 @@ inert when `window.claude` is undefined.
   added as a second formula field, then as a note line, then in the case name —
   **all removed**. The user did not want them.
 - **F2L**: an earlier F2L section (11 cases) was built and removed. It was
-  **re-added on the user's request** as a config set that is closed by default.
+  **re-added on the user's request** as a config set, not shown by default.
   It's left-handed (front-left slot), with the `f2l` mask retargeted from
   front-right to front-left.
-- **Code split into files + `config.json`** (user's request): sets are "view
-  options"; which are open is defined in the config and toggled under View. This
-  replaced the old single-file design (markup in a `SKELETON` string, user
-  defaults in a `/*BAKED*/` blob). The blob's formulas, marks and collapsed groups
-  were migrated into `config.json`.
+- **Code split into files + `config.json`** (user's request). This replaced the
+  old single-file design (markup in a `SKELETON` string, user defaults in a
+  `/*BAKED*/` blob). The blob's formulas, marks and collapsed groups were migrated
+  into `config.json`.
+- **Columns** (user's request): always exactly two, each header a dropdown of
+  sets, no set descriptions. A short-lived "View" checkbox version that showed
+  any number of columns was replaced by this.
+- **Marks live on the config lines** (user's request): `status`/`shut` on each
+  case, `shut` on groups, not in separate top-level maps.
+- **Full and compact views share one structure** (user's request): the old
+  desktop sidebar timer and inline toolbar were dropped in favour of the compact
+  view's top timer bar and Menu dropdown. Compact differs only in sizes.
 - **Cube colours** were changed to "more natural" pigments and **reverted**; the
   current palette is the one the user wants.
 - **Scramble "B/D bias"** was investigated: measured uniform over 400k moves
@@ -162,7 +172,7 @@ Roughly in the order the user found them interesting:
 3. **Tag each solve** with the OLL/PLL case encountered, to expose recognition gaps.
 4. Step through a formula move by move on the diagram.
 5. Full OLL (57) and PLL (21) as extra sets in `config.json`. The engine and
-   View toggle already handle them; it's data entry plus verification.
+   column dropdowns already handle them; it's data entry plus verification.
 6. Right-hand mirror toggle for the whole page.
 7. CSV export / csTimer import.
 8. **CUBOTino integration**: the user has a CUBOTino-style robot interest and an
@@ -188,7 +198,7 @@ Roughly in the order the user found them interesting:
 
 ```
 index.html              markup; links the CSS and scripts
-config.json             algorithm sets, open sets, default marks
+config.json             algorithm sets with default formulas and marks, default columns
 css/app.css             styles
 js/                     cube.js, store.js, cases.js, timer.js, ui.js, app.js
 manifest.json           PWA manifest

@@ -9,8 +9,8 @@ file for places that need a single file.
 Read this before changing anything. Two mechanisms are unusual:
 
 - **The algorithm sets live in `config.json`.** Sets, groups, cases, default
-  formulas, which sets are open, and default marks all come from there. The code
-  hard-codes no cases.
+  formulas, default marks, and which set each of the two columns shows all come
+  from there. The code hard-codes no cases.
 - **The page can rebuild itself as one standalone file**, with the user's current
   formulas baked into an inline config. It does this for *Download offline copy*
   and the Claude artifact's *Save edits into the page*.
@@ -21,13 +21,13 @@ Read this before changing anything. Two mechanisms are unusual:
 
 ```
 index.html          markup only; links css/app.css and the six scripts
-config.json         algorithm sets, open sets, default marks  (§2)
+config.json         algorithm sets with default formulas and marks, default columns  (§2)
 css/app.css         all styles: tokens, desktop, .compact, print  (§8)
 js/cube.js          cube model, move engine, diagrams: pure, no DOM  (§3, §4)
 js/store.js         user data in localStorage + Claude account sync  (§5, §6)
-js/cases.js         renders sets/cases from the config, validation, View toggles  (§4)
+js/cases.js         renders sets/cases from the config, validation, column pickers  (§4)
 js/timer.js         timer  (§7)
-js/ui.js            full/compact layout choice, theme, print, menus  (§8)
+js/ui.js            full/compact sizing, theme, print, menu  (§8)
 js/app.js           boot, import/export, single-file builder, PWA  (§1)
 manifest.json, sw.js, icons/   PWA shell  (§9)
 tools/build.js      → dist/speedcubing-assistant.html (single file; dist/ is git-ignored)
@@ -44,15 +44,15 @@ at load except definitions and listeners; `app.js` starts everything.
 ## 1. Boot sequence
 
 ```
-index.html: static markup inside <div id="app">, empty <div id="grid">
+index.html: static markup inside <div id="app">: two empty columns, empty #stash
    ↓ scripts load in order
 app.js: SKELETON = #app.innerHTML        (pristine markup, for the single-file builder)
    ↓
-tInit(), initUI(), initPWA()             timer, theme, menus work even if the config fails
+tInit(), initUI(), initPWA()             timer, theme, menu work even if the config fails
    ↓
 CFG = inline <script id="config"> JSON, or fetch("config.json")
    ↓
-initStore(CFG) → renderSets() → renderViews() → loadAll() → showSets() → initData()
+initStore(CFG) → renderSets() → renderPickers() → loadAll() → showSets() → initData()
    ↓
 layout()  (and again after web fonts load)
    ↓
@@ -93,18 +93,19 @@ and the status line says "Offline copy".
 {
   "open": ["oll", "pll"],
   "sets": [
-    { "id": "oll", "title": "2-Look OLL", "sub": "…",
+    { "id": "oll", "title": "2-Look OLL",
       "groups": [
-        { "n": 1, "label": "Edges", "mask": "edges",
-          "cases": [ { "id": "oll-l", "name": "L-Shape", "alg": "f' L' U' L U f", "prob": "50%" } ] } ] }
-  ],
-  "status": { "oll-l": "learned" },
-  "shut":   { "oll1": 1 }
+        { "n": 1, "label": "Edges", "mask": "edges", "shut": true,
+          "cases": [
+            { "id": "oll-l", "name": "L-Shape", "alg": "f' L' U' L U f", "prob": "50%", "status": "learned" }
+          ] } ] }
+  ]
 }
 ```
 
-* **open**: ids of the sets shown by default, in column order. The **View**
-  checkboxes in the toolbar override it per user (§5).
+* **open**: the sets the left and right columns show by default. There are
+  always exactly two columns. Each column header is a dropdown of every set's
+  `title`, which overrides this per user (§5).
 * **sets[].id**: also the prefix of group keys (`oll1` = set `oll`, group `n: 1`).
 * **cases[].id**: stable key for stored user data and `data-id` in the DOM.
   **Never rename an id** without migrating stored data, or users' edits are orphaned.
@@ -113,8 +114,11 @@ and the status line says "Offline copy".
 * **mask**: per group; decides diagram colouring and validation (§4):
   `"edges"` | `"oll"` | `"corners"` | `"full"` | `"f2l"`.
 * **prob**: optional display string only.
-* **status / shut**: default learning marks and collapsed groups/cases, used until
-  the user changes their own.
+* **status** (case, optional): `"learning"` or `"learned"`. **shut** (case or
+  group, optional): `true` = collapsed. These are defaults until the user changes
+  their own marks. At runtime `initStore()` turns them into the flat `status` /
+  `shut` maps (group key = set id + `n`, e.g. `oll1`); `bakedConfig()` writes
+  them back onto the lines.
 
 ### Cube state
 
@@ -195,13 +199,14 @@ Per case row: parse → state → `draw` → `.pic`, resize the textarea, set th
 
 **There is no stored "expected" answer**; validation is structural.
 
-### Sets and views
+### Sets and columns
 
-`renderSets()` renders **every** set in the config as a `<section class="col"
-data-set>`. `showSets()` hides the closed ones, puts the open ones in `open` order
-(CSS `order`), and sets `--cols` / `--ccols` on `:root` (open count, and the same
-capped at 2 for compact/print). Closed sets stay in the DOM, so their formulas are
-still exported and baked.
+`index.html` has two fixed `<section class="col">` elements, each with a
+`<select class="setpick">` header and a `.colbody`. `renderSets()` renders
+**every** set once as a `<div class="setbody" data-set>` into the hidden `#stash`.
+`showSets()` moves the two chosen set bodies into the columns and the rest back
+to the stash, so all formulas stay in the DOM and are still exported and baked.
+Picking the set the other column shows swaps the two columns.
 
 ---
 
@@ -215,14 +220,15 @@ still exported and baked.
 
 Only **changed** formulas go into `algs`; a value equal to the config default is
 deleted, so `Reset` and later config changes behave predictably. `open` (the
-`openPick` variable) is `null` unless the user ticked View boxes that differ from
+`openPick` variable) is `null` unless the user picked columns that differ from
 `config.open`, so editing `config.open` still takes effect for everyone who
-hasn't chosen their own view.
+hasn't chosen their own.
 
 ### Baking
 
 `bakedConfig()` returns the config with every case's `alg` replaced by the current
-formula, plus the current `status`, `shut` and open sets. Two writers use it:
+formula, the current marks written onto the case/group lines, and the current
+columns as `open`. Two writers use it:
 
 * **Download offline copy**: `buildPage(bakedConfig())` → `speedcubing-assistant.html`.
 * **Save edits into the page** (Claude artifact only): same, then republishes.
@@ -274,27 +280,24 @@ combination works:
 :root[data-theme="dark"] { ... }                            /* explicit */
 ```
 
-* **Full**: `.layout` flex: 250px sticky timer sidebar + `.grid` with one column
-  per open set. `.wrap`'s max-width grows with `--cols` (1280px for two).
-* **Compact**: timer as a sticky bar on top, toolbar (including View) in a
-  **Menu** dropdown, times behind **Times ▾**, at most two columns (`--ccols`) with
-  46px diagrams; a third set wraps below. All rules are `.compact …` inside
-  `@media screen`.
-* **Print**: no timer or buttons, light colours, collapsed sections opened, up to
-  two columns.
+**Both views have the same structure**: title + **Menu** dropdown (all actions and
+the `#sync` line), the timer as a sticky bar across the top (scramble, clock on
+the right, one-line stats, times behind **Times ▾**), then two columns. The ▴ button
+shrinks the timer bar to one line (clock + scramble).
 
-There is no width breakpoint. `layout()` (`ui.js`) removes `html.compact`, measures
-the full layout and puts the class back unless everything fits:
-- every case header (name + Mirror + Reset) of the open sets fits on one line in
-  its column (measured with a hidden probe row);
-- the sticky timer fits the window height with room for ~5 rows of times; the
-  times list's `max-height` is then set inline to the space left (up to 210px);
-- no horizontal scroll.
+* **Full**: 74px diagrams, Mirror/Reset visible, larger type. `.wrap` max 1280px.
+* **Compact**: the same page with smaller sizes: 46px diagrams, smaller type,
+  Mirror/Reset hidden. All rules are `.compact …` size overrides inside
+  `@media screen`; **put structure in the base rules, not under `.compact`**.
+* **Print**: no timer or menu, light colours, collapsed sections opened, the two
+  columns.
 
-It runs on boot, after fonts load, on resize, when the timer is shown or hidden,
-and when the View changes. A resize while a text field has focus (on-screen
-keyboard) is deferred until focus leaves. Roughly: two columns need ≥1000px,
-three ≥1400px, and ≥550px of height with the timer shown.
+There is no width breakpoint. `layout()` (`ui.js`) removes `html.compact`, measures,
+and puts the class back unless every case header (name + Mirror + Reset) of the two
+shown sets fits on one line in its column (hidden probe row) and nothing scrolls
+sideways. Only width matters: it runs on boot, after fonts load, when a column's
+set changes, and on resizes that change the width. Height-only resizes (on-screen
+keyboard, mobile address bar) are ignored. Roughly ≥1000px wide gets the full view.
 
 Collapsing: `.case.shut` and `.step.shut` hide content via CSS. Textareas are sized
 by `fit()`, which **must** re-run when a container becomes visible; a textarea
@@ -321,8 +324,8 @@ measured while `display:none` reports zero height.
 **Add a case**: add an object to a group's `cases` in `config.json`, with a new id.
 The row, diagram, validation and storage key all derive from it.
 
-**Add a set** (e.g. full PLL): add an entry to `sets`. It appears under View;
-add its id to `open` to show it by default. A new kind of diagram needs a `mask`
+**Add a set** (e.g. full PLL): add an entry to `sets`. It appears in both column
+dropdowns; put its id in `open` to show it by default. A new kind of diagram needs a `mask`
 branch in `colour()` and possibly in `update()`.
 
 **Change a default formula**: edit `alg` in `config.json`. Users who edited that

@@ -68,7 +68,7 @@ function initPWA(){if(!("serviceWorker"in navigator)||document.getElementById("c
  tInit();initUI();initPWA();
  try{CFG=await loadConfig()}
  catch(e){setSync("Could not load config.json. Open the page from a web server (e.g. GitHub Pages) or use the single-file build.");layout();return}
- initStore(CFG);renderSets();renderViews();loadAll();showSets();initData();
+ initStore(CFG);renderSets();renderPickers();loadAll();showSets();initData();
  layout();if(document.fonts)document.fonts.ready.then(layout);
  initCloud();initBake();
 })();

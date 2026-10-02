@@ -1,22 +1,19 @@
 {
-  "open": [
-    "oll",
-    "pll"
-  ],
+  "open": ["oll", "pll"],
   "sets": [
     {
       "id": "oll",
       "title": "2-Look OLL",
-      "sub": "Orientation: make the top face one colour.",
       "groups": [
         {
           "n": 1,
           "label": "Edges",
           "mask": "edges",
+          "shut": true,
           "cases": [
-            { "id": "oll-l", "name": "L-Shape", "alg": "f' L' U' L U f", "prob": "50%" },
-            { "id": "oll-i", "name": "I-Shape", "alg": "F' L' U' L U F", "prob": "25%" },
-            { "id": "oll-dot", "name": "Dot Shape", "alg": "F' L' U' L U F f' L' U' L U f", "prob": "13%" }
+            { "id": "oll-l", "name": "L-Shape", "alg": "f' L' U' L U f", "prob": "50%", "status": "learned" },
+            { "id": "oll-i", "name": "I-Shape", "alg": "F' L' U' L U F", "prob": "25%", "status": "learned" },
+            { "id": "oll-dot", "name": "Dot Shape", "alg": "F' L' U' L U F f' L' U' L U f", "prob": "13%", "status": "learned" }
           ]
         },
         {
@@ -38,7 +35,6 @@
     {
       "id": "pll",
       "title": "2-Look PLL",
-      "sub": "Permutation: put the last-layer pieces in place.",
       "groups": [
         {
           "n": 1,
@@ -67,7 +63,6 @@
     {
       "id": "f2l",
       "title": "F2L",
-      "sub": "Pair a corner with its edge and insert it into the front-left slot.",
       "groups": [
         {
           "n": 1,
@@ -104,13 +99,5 @@
         }
       ]
     }
-  ],
-  "status": {
-    "oll-dot": "learned",
-    "oll-i": "learned",
-    "oll-l": "learned"
-  },
-  "shut": {
-    "oll1": 1
-  }
+  ]
 }

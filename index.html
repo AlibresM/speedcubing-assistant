@@ -18,26 +18,25 @@
 <link rel="stylesheet" href="css/app.css" data-app-css>
 </head>
 <body><div id="app"><div class="wrap">
-<div class="top"><div><h1>Speedcubing Assistant</h1>
-<p class="lead">Left-hand algorithms. Edit any formula and the diagram updates.</p></div>
+<div class="top"><h1>Speedcubing Assistant</h1>
 <div class="menuwrap"><button id="menuBtn" type="button" class="menubtn" aria-expanded="false">Menu &#9662;</button>
-<div class="tools" id="tools"><span id="views" class="views"></span><button id="dlHtml" type="button">Download offline copy</button><button id="exJson" type="button">Export .json</button><label class="btnlike" for="imJson">Import .json</label><input id="imJson" type="file" accept=".json,application/json" hidden><button id="bake" type="button" hidden>Save edits into the page</button><button id="print" type="button">Print sheet</button><button id="theme" type="button">Theme: auto</button><button id="resetAll" type="button">Reset all</button><span id="sync" class="sync"></span></div></div></div>
-<div class="layout">
+<div class="tools" id="tools"><button id="dlHtml" type="button">Download offline copy</button><button id="exJson" type="button">Export .json</button><label class="btnlike" for="imJson">Import .json</label><input id="imJson" type="file" accept=".json,application/json" hidden><button id="bake" type="button" hidden>Save edits into the page</button><button id="print" type="button">Print sheet</button><button id="theme" type="button">Theme: auto</button><button id="resetAll" type="button">Reset all</button><span id="sync" class="sync"></span></div></div></div>
 <aside id="timer" class="side">
-<button id="tFold" class="tfold" type="button" title="Hide timer">&#9666;</button>
+<button id="tFold" class="tfold" type="button" title="Shrink timer">&#9652;</button>
 <div class="tbody">
-<div class="thead"><h2>Timer</h2><label class="insp"><input type="checkbox" id="tInsp"> 15s inspection</label></div>
+<div class="thead"><h2>Timer</h2><button id="tNew" type="button" class="small">New scramble</button><label class="insp"><input type="checkbox" id="tInsp"> 15s inspection</label></div>
 <div id="tScr" class="scramble"></div>
-<button id="tNew" type="button" class="small">New scramble</button>
 <div id="tClock" class="clock" tabindex="0" role="button" aria-label="Hold space or tap and hold, then release to start">0.00</div>
-<p class="hint" id="tHint">Hold space (or touch) &mdash; release to start</p>
 <div id="tStats" class="stats"></div>
 <button id="tHist" type="button" class="small histbtn">Times &#9662;</button>
 <ul id="tList" class="times"></ul>
-<div class="tools tbot"><button id="tClear" type="button" class="small">Clear session</button></div>
+<div class="tbot"><button id="tClear" type="button" class="small">Clear session</button></div>
 </div></aside>
-<div class="grid" id="grid"></div>
+<div class="grid" id="grid">
+<section class="col"><div class="colhead"><select class="setpick" aria-label="Left column"></select><span class="chev">&#9662;</span></div><div class="colbody"></div></section>
+<section class="col"><div class="colhead"><select class="setpick" aria-label="Right column"></select><span class="chev">&#9662;</span></div><div class="colbody"></div></section>
 </div>
+<div id="stash" hidden></div>
 </div></div>
 <script src="js/cube.js" data-app></script>
 <script src="js/store.js" data-app></script>

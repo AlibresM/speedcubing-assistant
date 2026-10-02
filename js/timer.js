@@ -61,10 +61,10 @@ function stopTimer(){cancelAnimationFrame(tRaf);const ms=performance.now()-tStar
 function tInit(){
  const side=document.getElementById("timer");
  const paintSide=()=>{side.classList.toggle("shut",tShut);
-  const b=document.getElementById("tFold");b.innerHTML=tShut?"\u25b8":"\u25c2";b.title=tShut?"Show timer":"Hide timer"};
- document.getElementById("tFold").onclick=()=>{tShut=!tShut;tSave();paintSide();layout()};paintSide();
+  const b=document.getElementById("tFold");b.innerHTML=tShut?"\u25be":"\u25b4";b.title=tShut?"Show full timer":"Shrink timer"};
+ document.getElementById("tFold").onclick=()=>{tShut=!tShut;tSave();paintSide()};paintSide();
  const ins=document.getElementById("tInsp");ins.checked=tInsp;
- ins.onchange=()=>{tInsp=ins.checked;tSave();document.getElementById("tHint").textContent=tInsp?"Hold space \u2014 release to start inspection":"Hold space (or touch) \u2014 release to start"};
+ ins.onchange=()=>{tInsp=ins.checked;tSave();clock().title=tInsp?"Hold space \u2014 release to start inspection":"Hold space (or touch) \u2014 release to start"};
  ins.onchange();
  document.getElementById("tNew").onclick=setScr;
  const cl=document.getElementById("tClear");let armed=0;

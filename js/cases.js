@@ -1,11 +1,11 @@
-/* Speedcubing Assistant - algorithm sets from config.json: one column per open set,
-   one row per case with its formula, generated diagram and validation message. */
+/* Speedcubing Assistant - algorithm sets from config.json, shown in two columns. Each column's
+   header is a dropdown of all sets; every set is rendered once and moved into the column showing it. */
 let CFG=null;const defaults={};
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c]);
 function renderSets(){
  let all="";
  for(const set of CFG.sets){
-  all+=`<section class="col" id="set-${esc(set.id)}" data-set="${esc(set.id)}"><header class="colhead"><h2>${esc(set.title)}</h2><p>${esc(set.sub||"")}</p></header>`;
+  all+=`<div class="setbody" id="set-${esc(set.id)}" data-set="${esc(set.id)}">`;
   for(const g of set.groups){
    all+=`<div class="step" data-step="${esc(set.id)}${g.n}"><h3><span class="stepn">${g.n}</span>${esc(g.label)}<span class="chev">▾</span></h3><ul class="cases">`;
    for(const c of g.cases){defaults[c.id]=c.alg;
@@ -16,8 +16,8 @@ function renderSets(){
     <textarea class="alg" rows="1" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="${esc(c.name)} formula"></textarea>
     <div class="msg"></div></div></li>`}
    all+=`</ul></div>`}
-  all+=`</section>`}
- document.getElementById("grid").innerHTML=all;
+  all+=`</div>`}
+ document.getElementById("stash").innerHTML=all;
  document.querySelectorAll(".step").forEach(d=>{d.querySelector("h3").onclick=()=>{
   const k=d.dataset.step;if(shut[k])delete shut[k];else shut[k]=1;persist();paintStep(d);d.querySelectorAll(".alg").forEach(fit)}});
  document.querySelectorAll(".case").forEach(li=>{const id=li.dataset.id,mask=li.dataset.mask,ta=li.querySelector(".alg");
@@ -66,19 +66,24 @@ function loadAll(){document.querySelectorAll(".case").forEach(li=>{const id=li.d
  document.querySelectorAll(".step").forEach(paintStep)}
 function current(){const o={};document.querySelectorAll(".case").forEach(li=>{o[li.dataset.id]=li.querySelector(".alg").value.trim()});return o}
 
-/* ---- which sets are open ---- */
-const openSets=()=>(openPick||CFG.open||[]).filter(id=>CFG.sets.some(s=>s.id===id));
-function renderViews(){const v=document.getElementById("views");
- v.innerHTML=CFG.sets.map(s=>`<label><input type="checkbox" value="${esc(s.id)}"> ${esc(s.title)}</label>`).join("");
- v.onchange=e=>{const id=e.target.value,o=openSets().filter(x=>x!==id);if(e.target.checked)o.push(id);
-  openPick=o.join()===(CFG.open||[]).join()?null:o;persist();showSets();layout()}}
-function showSets(){if(!CFG)return;const o=openSets();
- document.querySelectorAll(".col").forEach(s=>{const i=o.indexOf(s.dataset.set);s.hidden=i<0;s.style.order=i});
- const n=Math.max(1,o.length),r=document.documentElement.style;
- r.setProperty("--cols",n);r.setProperty("--ccols",Math.min(n,2));
- document.querySelectorAll("#views input").forEach(i=>i.checked=o.includes(i.value));
- document.querySelectorAll(".col:not([hidden]) .alg").forEach(fit)}
-// config with the current formulas, marks and view baked in as the new defaults
+/* ---- which set each of the two columns shows ---- */
+function openSets(){const ids=CFG.sets.map(s=>s.id),o=[];
+ for(const id of (openPick||CFG.open||[]))if(ids.includes(id)&&!o.includes(id)&&o.length<2)o.push(id);
+ for(const id of ids)if(o.length<2&&!o.includes(id))o.push(id);   // fill up if the config names fewer than two
+ return o}
+function renderPickers(){
+ document.querySelectorAll(".setpick").forEach((sel,i)=>{
+  sel.innerHTML=CFG.sets.map(s=>`<option value="${esc(s.id)}">${esc(s.title)}</option>`).join("");
+  sel.onchange=()=>{const o=openSets(),j=1-i;
+   if(o[j]===sel.value)o[j]=o[i];   // picking the other column's set swaps the two
+   o[i]=sel.value;openPick=o.join()===(CFG.open||[]).join()?null:o;persist();showSets();layout()}})}
+function showSets(){if(!CFG)return;const o=openSets(),stash=document.getElementById("stash");
+ document.querySelectorAll(".setbody").forEach(b=>stash.appendChild(b));
+ document.querySelectorAll(".col").forEach((col,i)=>{const b=document.getElementById("set-"+o[i]);
+  col.querySelector(".setpick").value=o[i]||"";if(b)col.querySelector(".colbody").appendChild(b)});
+ document.querySelectorAll(".col .alg").forEach(fit)}
+// config with the current formulas, marks and columns baked in as the new defaults
 function bakedConfig(){const cur=current();
- return {...CFG,open:openSets(),status,shut,
-  sets:CFG.sets.map(s=>({...s,groups:s.groups.map(g=>({...g,cases:g.cases.map(c=>({...c,alg:cur[c.id]||c.alg}))}))}))}}
+ return {...CFG,open:openSets(),sets:CFG.sets.map(s=>({...s,groups:s.groups.map(g=>{const {shut:_g,cases,...grp}=g;
+  return {...grp,...(shut[s.id+g.n]?{shut:true}:{}),cases:cases.map(c=>{const {status:_s,shut:_c,...cs}=c;
+   return {...cs,alg:cur[c.id]||c.alg,...(status[c.id]?{status:status[c.id]}:{}),...(shut[c.id]?{shut:true}:{})}})}})}))}}

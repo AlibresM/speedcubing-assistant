@@ -21,11 +21,13 @@ Installs to the home screen and runs offline.
 
 Everything about the sets lives in `config.json`:
 
-- `sets`: each set has groups, and each group has cases (`id`, `name`, `alg`,
-  optional `prob`). Diagrams are drawn from the formulas, so adding a case only
-  takes a new entry.
-- `open`: the sets shown by default, in column order. Anyone can open or close
-  sets with the **View** checkboxes in the toolbar.
+- `sets`: each set has a `title` and groups; each group has cases, one per line:
+  `id`, `name`, `alg`, and optionally `prob`, `status` (`"learning"` /
+  `"learned"`) and `shut: true` (collapsed). A group can have `shut: true` too.
+  Diagrams are drawn from the formulas, so adding a case only takes a new line.
+- `open`: the two sets shown in the left and right columns by default. The
+  page always has two columns, and each column's title is a dropdown to pick
+  any set.
 
 Don't rename a case `id`; stored edits and marks are keyed by it.
 
@@ -69,7 +71,7 @@ On the next online start the app shows "New version ready — reload to update".
 
 ## Your data
 
-Formulas you edit, learned/learning marks, the View choice and solve times live in
+Formulas you edit, learned/learning marks, the column choice and solve times live in
 the browser's local storage, on each device separately. They are never uploaded,
 so GitHub never sees them, and they don't sync between devices. Use
 **Export .json** / **Import .json** in the menu to move them across.

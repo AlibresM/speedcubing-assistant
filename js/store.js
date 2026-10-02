@@ -1,10 +1,13 @@
 /* Speedcubing Assistant - user data: edited formulas, marks, collapse state, chosen view.
    Always kept in localStorage; also synced to the Claude account when the page runs as a Claude artifact. */
 const KEY="twolook-algs-v1";
-// openPick: the sets the user ticked under "View", or null to follow config.open
+// openPick: the two sets the user picked for the columns, or null to follow config.open
 let saved={},status={},shut={},openPick=null,savedAt=0;
 function initStore(cfg){
- status={...(cfg.status||{})};shut={...(cfg.shut||{})};
+ // defaults from the config: "status"/"shut" on a case line, "shut" on a group
+ status={};shut={};
+ for(const s of cfg.sets)for(const g of s.groups){if(g.shut)shut[s.id+g.n]=1;
+  for(const c of g.cases){if(c.status)status[c.id]=c.status;if(c.shut)shut[c.id]=1}}
  try{const o=JSON.parse(localStorage.getItem(KEY)||"{}")||{};
   if(o.algs){saved=o.algs;status=o.status||{};shut=o.shut||{};openPick=Array.isArray(o.open)?o.open:null;savedAt=o.at||0}else saved=o}catch(e){}}
 const payload=()=>({algs:saved,status,shut,open:openPick,at:savedAt});
