@@ -88,6 +88,10 @@ inert when `window.claude` is undefined.
   same row without cube and formula: ▸ ○ name, icons in the same place.
 - **Text size − / +** in the Menu, 12–22px (default 16), scales text and cubes.
   Stored only in this browser, not in `config.json`, exports or offline copies.
+- **Keep screen on** toggle in the Menu (Screen Wake Lock), so the phone doesn't
+  sleep between solves. Per browser; re-taken when you return to the app. Where
+  it isn't possible it's greyed out as "Keep screen on: –", with no message
+  (user's request).
 - **Print sheet** button: one-page, two-column, no chrome, always light colours,
   collapsed sections printed open.
 - **Theme** button: auto → light → dark, remembered.

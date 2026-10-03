@@ -37,7 +37,25 @@ function applyText(){const v=textPx();
  document.getElementById("txtMinus").disabled=v<=TXMIN;document.getElementById("txtPlus").disabled=v>=TXMAX}
 function stepText(d){try{localStorage.setItem(TXKEY,String(textPx()+d))}catch(e){}applyText();layout()}
 
+/* ---- keep screen on (Screen Wake Lock): this browser only. The browser drops the lock whenever
+   the page is hidden, so it is taken again each time the page becomes visible. ---- */
+const WKEY="twolook-wake";let wakeLock=null;
+// not possible here (no API, blocked by the page's permissions policy, or a request was refused): greyed out as "–"
+let wakeOK="wakeLock" in navigator&&!(document.featurePolicy&&!document.featurePolicy.allowsFeature("screen-wake-lock"));
+const wakeWanted=()=>{try{return localStorage.getItem(WKEY)==="1"}catch(e){return false}};
+async function applyWake(){const b=document.getElementById("wake");
+ b.hidden=false;b.disabled=!wakeOK;
+ if(!wakeOK){b.textContent="Keep screen on: –";return}
+ const on=wakeWanted();b.textContent="Keep screen on: "+(on?"on":"off");
+ if(on&&!wakeLock&&document.visibilityState==="visible"){
+  try{wakeLock=await navigator.wakeLock.request("screen");wakeLock.addEventListener("release",()=>{wakeLock=null})}
+  catch(e){wakeOK=false;applyWake()}}
+ else if(!on&&wakeLock){const l=wakeLock;wakeLock=null;l.release().catch(()=>{})}}
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")applyWake()});
+
 function initUI(){
+ document.getElementById("wake").onclick=()=>{try{localStorage.setItem(WKEY,wakeWanted()?"0":"1")}catch(e){}applyWake()};
+ applyWake();
  document.getElementById("theme").onclick=()=>{let cur="auto";try{cur=localStorage.getItem(THKEY)||"auto"}catch(e){}
   const next={auto:"light",light:"dark",dark:"auto"}[cur];
   try{localStorage.setItem(THKEY,next)}catch(e){}applyTheme()};
@@ -52,7 +70,7 @@ function initUI(){
  mb.onclick=e=>{e.stopPropagation();const o=tl.classList.toggle("open");
   mb.setAttribute("aria-expanded",o?"true":"false");mb.textContent=o?"Menu ▴":"Menu ▾"};
  document.addEventListener("click",e=>{if(tl.classList.contains("open")&&!tl.contains(e.target)&&e.target!==mb)close()});
- // picking an action closes the menu; Theme and the text size buttons keep it open so you can click again
- tl.addEventListener("click",e=>{const b=e.target.closest("button,label");if(b&&b.id!=="theme"&&!b.closest(".textsize"))close()});
+ // picking an action closes the menu; the settings (Theme, text size, Keep screen on) keep it open
+ tl.addEventListener("click",e=>{const b=e.target.closest("button,label");if(b&&b.id!=="theme"&&b.id!=="wake"&&!b.closest(".textsize"))close()});
  const hb=document.getElementById("tHist"),lst=document.getElementById("tList");
  hb.onclick=()=>{const o=lst.classList.toggle("open");hb.textContent=o?"Times ▴":"Times ▾"}}

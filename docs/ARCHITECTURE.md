@@ -224,6 +224,7 @@ Picking the set the other column shows swaps the two columns.
 | `twolook-times-v1` | `{ times: [{ms, scr, plus2, dnf, at}], shut: bool, insp: bool }`, capped at the last 300 |
 | `twolook-theme` | `"auto"` \| `"light"` \| `"dark"` |
 | `twolook-text` | root font size in px, `12`–`22`; local only |
+| `twolook-wake` | `"1"` = keep the screen on (Screen Wake Lock); local only |
 
 Only **changed** formulas go into `algs`; a value equal to the config default is
 deleted, so `Reset` and later config changes behave predictably. `open` (the
@@ -314,6 +315,12 @@ buttons, so it's one slim line: `[fold status] name`. Two custom properties on
 steps (default 16). Everything is in `rem`, cubes included, so it all scales.
 It's stored only in this browser (`twolook-text`), never in the config, exports
 or offline copies.
+
+**Keep screen on** (Menu toggle, `ui.js`) uses the Screen Wake Lock API. The
+browser releases the lock whenever the page is hidden, so `applyWake()` requests
+it again on `visibilitychange`. When it isn't possible (no API, blocked by the
+page's permissions policy as in an artifact frame, or a request is refused), the
+button is disabled and reads "Keep screen on: –". There's no message.
 * **Print**: no timer or menu, light colours, collapsed sections opened, the two
   columns.
 
