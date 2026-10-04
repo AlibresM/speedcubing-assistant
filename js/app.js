@@ -34,13 +34,14 @@ function initData(){
  document.getElementById("dlHtml").onclick=async()=>{let html;
   try{html=await buildPage(bakedConfig())}catch(e){setSync("Could not build the offline copy here");return}
   offerFile("speedcubing-assistant.html",html,"text/html")};
- document.getElementById("exJson").onclick=()=>offerFile("2look-algs.json",JSON.stringify({type:"2look-algs",algs:current(),status,shut,open:openPick},null,2),"application/json");
+ document.getElementById("exJson").onclick=()=>offerFile("2look-algs.json",JSON.stringify({type:"2look-algs",algs:current(),status,shut,pick,open:openPick},null,2),"application/json");
  document.getElementById("imJson").onchange=async e=>{const f=e.target.files[0];e.target.value="";if(!f)return;
   try{const o=JSON.parse(await f.text());const a=o.algs||o;let n=0;
    for(const id in defaults)if(typeof a[id]==="string"){if(a[id].trim()===defaults[id])delete saved[id];else saved[id]=a[id];n++}
    if(o.status&&typeof o.status==="object")status={...o.status};
    if(o.shut&&typeof o.shut==="object")shut={...o.shut};
    if(Array.isArray(o.open))openPick=o.open;
+   if(o.pick&&typeof o.pick==="object")pick={...o.pick};
    if(!n&&!o.status)throw 0;persist();loadAll();showSets();layout()}catch(err){setSync("That file has no formulas for this page")}};
  document.getElementById("resetAll").onclick=()=>{saved={};persist();loadAll()}}
 

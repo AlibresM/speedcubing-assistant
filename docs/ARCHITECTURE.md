@@ -113,6 +113,23 @@ and the status line says "Offline copy".
   there is no stored case picture.
 * **mask**: per group; decides diagram colouring and validation (§4):
   `"edges"` | `"oll"` | `"corners"` | `"full"` | `"f2l"` | `"f2l-slot"`.
+* **algs** (instead of `alg`): several formulas for one case, e.g. Ua with and
+  without M:
+  ```json
+  { "id": "pll-ua", "name": "Ua", "prob": "33%", "algs": [
+    { "id": "m", "label": "M", "alg": "M2 U M U2 M' U M2" },
+    { "id": "nom", "label": "no M", "alg": "L2 U' L' U' L U L U L U' L" }
+  ], "pick": "nom" }
+  ```
+  One row and one diagram per case. The formula line (`.algline`) gets a
+  `<select class="var">` after the textarea, drawn as a small ▾ button (text
+  transparent). Its options are the formulas themselves, current edits
+  included; `fillVar()` rebuilds them on switch, edit and Reset. The config
+  `label` is only the option's tooltip. Open cases only. The diagram is drawn
+  from whichever formula is shown. **pick** (optional) = the variant shown by default (else the first).
+  Storage keys: the **first** variant uses the case id (so edits made before a
+  case got variants survive), the others `caseId.variantId`. So **don't reorder
+  the first variant**, and keep variant ids stable.
 * **prob**: optional display string only.
 * **status** (case, optional): `"learning"` or `"learned"`. **shut** (case or
   group, optional): `true` = collapsed. These are defaults until the user changes
@@ -220,7 +237,7 @@ Picking the set the other column shows swaps the two columns.
 
 | Key | Contents |
 |---|---|
-| `twolook-algs-v1` | `{ algs: {id: formula}, status: {id: "learning"\|"learned"}, shut: {id\|groupKey: 1}, open: [setId]\|null, at: epoch_ms }` |
+| `twolook-algs-v1` | `{ algs: {key: formula}, status: {id: "learning"\|"learned"}, shut: {id\|groupKey: 1}, pick: {id: variantId}, open: [setId]\|null, at: epoch_ms }`; `key` = case id, or `caseId.variantId` for a non-first variant |
 | `twolook-times-v1` | `{ times: [{ms, scr, plus2, dnf, at}], shut: bool, insp: bool }`, capped at the last 300 |
 | `twolook-theme` | `"auto"` \| `"light"` \| `"dark"` |
 | `twolook-text` | root font size in px, `12`–`22`; local only |
@@ -234,9 +251,11 @@ hasn't chosen their own.
 
 ### Baking
 
-`bakedConfig()` returns the config with every case's `alg` replaced by the current
-formula, the current marks written onto the case/group lines, and the current
-columns as `open`. Two writers use it:
+`bakedConfig()` returns the config with every formula (each variant of `algs`
+too) replaced by the current one, the current marks and `pick` written onto the
+case/group lines, and the current columns as `open`. `current()` returns every
+formula by storage key: the shown variant from its textarea, the others from
+saved/defaults. Two writers use it:
 
 * **Download offline copy**: `buildPage(bakedConfig())` → `speedcubing-assistant.html`.
 * **Save edits into the page** (Claude artifact only): same, then republishes.
@@ -302,9 +321,12 @@ the same timer contents (scramble, clock, one-line stats, times behind
 The fold button shrinks the timer to one line (clock + scramble). It carries both
 glyphs (`.g-side` ◂/▸, `.g-top` ▴/▾) and CSS shows the one for the current view.
 
-A case row is `[fold status] [cube] [name % … Mirror Reset / formula]`.
-A collapsed case (`.case.shut`) is the same row without the cube, %, formula and
-buttons, so it's one slim line: `[fold status] name`. Two custom properties on
+A case row is `[fold / status] [cube] [name % … Mirror Reset / formula]`: the
+fold button on the name line, the status circle under it. A collapsed case
+(`.case.shut`) is the same row without the status, cube, %, formula and buttons,
+so it's one slim line: `[fold] name`. The status circle is a CSS `::before` on
+`.st` (outline / half gradient / filled by `data-s`), not a glyph, so all three
+states are the same size. Two custom properties on
 `.case` keep it consistent:
 - `--nameh`: the name line's height. The icon strip and buttons are that tall,
   so the icons sit on the name line in the same place, open or collapsed.

@@ -25,6 +25,11 @@ Everything about the sets lives in `config.json`:
   `id`, `name`, `alg`, and optionally `prob`, `status` (`"learning"` /
   `"learned"`) and `shut: true` (collapsed). A group can have `shut: true` too.
   Diagrams are drawn from the formulas, so adding a case only takes a new line.
+  A case can have several formulas instead of one: `"algs": [{ "id", "label",
+  "alg" }, …]` (see Ua/Ub, Aa/Ab). The page then shows a small ▾ at the end of
+  the formula box that lists all of them. The `label` is for you; the page only
+  uses it as a tooltip. Keep the first one first; it holds edits made before the others
+  were added.
 - `open`: the two sets shown in the left and right columns by default. The
   page always has two columns, and each column's title is a dropdown to pick
   any set.

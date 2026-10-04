@@ -55,14 +55,33 @@ inert when `window.claude` is undefined.
   formula box red; "breaks the first two layers / other slots" or "does nothing"
   turns it orange. The reason shows on hover. Valid formulas show nothing. (A
   message line, including "Finish with U", was removed at the user's request.)
-- **Mirror** button (left↔right) and **Reset** per case.
+- **Mirror** button (left↔right) and **Reset** per case (they act on the formula
+  shown).
+- **Several formulas per case**: a case can hold alternatives (`algs` in the
+  config). A small ▾ at the end of the formula box opens a list of all the
+  case's formulas, written out in full (including your edits); picking one
+  shows it (open cases only), and the choice is remembered. The names in the
+  config (Ua/Ub: "M" / "no M"; Aa: "x" / "x'" / "r" / "F/B"; Ab: "x" / "x'" /
+  "F/B") are not shown, only used as tooltips. The x' ones: Aa
+  `x' L' U L' D2 L U' L' D2 L2`, Ab `x' L2 D2 L U L' D2 L U' L` (the user's
+  original Ab); found by searching all x' + L/U/D formulas of the A-perm shape. Aa's "r" (`r L D2 L' U' L D2 L' U L'`) is kept
+  at the user's request. Ab has no r version: written with r it would equal its
+  x formula (r = x + L). The extra formulas are
+  mirrored standard algorithms, checked to solve the same case; the picture
+  turns to however that formula holds the cube.
+  (Rejected before this: a "label ⇄" chip after the case name, and a dropdown
+  of names before the formula.)
+- Note: **Mirror** on Ua's M formula gives exactly Ub's M formula (it swaps U
+  and U' and leaves M as is), and the result is saved as an edit (yellow border).
+  Reset restores it.
 - Probability of each case shown in small grey text next to its name.
 - Cases sorted most-common-first; Sune and Antisune lead the OLL corners because
   the other cases are built from them.
 
 **Learning state**
-- Three-state marker per case: ○ not learned → ◐ learning → ✓ learned, tinting
-  the row yellow/green.
+- Three-state marker per case, always a circle (drawn in CSS so all three are the
+  same size): empty = not learned → half = learning → full = learned, tinting the
+  row yellow/green. Shown only on open cases; collapsed rows keep the tint.
 - Collapse a single case to a one-line entry, or a whole group by its header.
 
 **Timer**
@@ -82,10 +101,10 @@ inert when `window.claude` is undefined.
   Compact: timer as a sticky **bar on top**, Mirror/Reset hidden. Cube size is
   the same in both. Compact is used whenever sidebar + two columns don't fit
   (measured, ≈ <1000px wide), not at a fixed breakpoint.
-- Case row: ▾ ○ icons side by side, the cube, then the name (with the % next to
-  it, Mirror/Reset at the right) and the formula under the name. The cube is as
-  tall as name + formula; the icons sit on the name line. A collapsed case is the
-  same row without cube and formula: ▸ ○ name, icons in the same place.
+- Case row: ▾ on the name line with the status circle under it, the cube, then
+  the name (with the % next to it, Mirror/Reset at the right) and the formula
+  under the name. The cube is as tall as name + formula. A collapsed case is the
+  same row without circle, cube and formula: ▸ name, ▸ in the same place.
 - **Text size − / +** in the Menu, 12–22px (default 16), scales text and cubes.
   Stored only in this browser, not in `config.json`, exports or offline copies.
 - **Keep screen on** toggle in the Menu (Screen Wake Lock), so the phone doesn't
@@ -111,6 +130,14 @@ inert when `window.claude` is undefined.
 
 - **Left-hand algorithms are the point.** The page exists because the user solves
   left-handed. Don't "fix" formulas to right-hand standards.
+- **Exception, user's own choice: Aa uses `x R' U R' D2 R U' R' D2 R2`** (the
+  standard right-hand Aa), and **Ab its mirror `x L U' L D2 L' U L D2 L2`**. This
+  is how the user remembers them: after the x, the corner that moves diagonally
+  is on top. They replaced the earlier x formulas (`x L2 D2 L' U' L D2 L' U L'`
+  / `x' L2 D2 L U L' D2 L U' L`). Don't change these to left-hand.
+- **No AUF padding on alternative formulas** (user's request): a formula is not
+  prefixed with U / U' just to match another formula's picture. The diagram is
+  drawn from the formula shown, so it simply turns when you switch.
 - **Right-hand duplicate rows were added and removed** — rejected as clutter.
 - **Sune/Antisune composition notes** (H = Sune twice, Pi = Sune U Sune, etc.) were
   added as a second formula field, then as a note line, then in the case name —
@@ -222,7 +249,9 @@ Roughly in the order the user found them interesting:
   in `ASSETS`, or installed devices keep serving the old version.
 - **`config.json` holds the user's formulas, marks and collapsed groups as
   defaults.** Don't reset them to textbook values.
-- Case and set ids are permanent keys for stored data.
+- Case and set ids are permanent keys for stored data. For cases with several
+  formulas, the first variant is stored under the case id: don't reorder it,
+  and keep variant ids stable.
 - After changing the app, run `node tools/build.js` before publishing to Claude.
 
 ---

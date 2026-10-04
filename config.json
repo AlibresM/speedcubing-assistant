@@ -2,14 +2,10 @@
   "open": ["oll", "pll"],
   "sets": [
     {
-      "id": "oll",
-      "title": "2-Look OLL",
+      "id": "oll", "title": "2-Look OLL",
       "groups": [
         {
-          "n": 1,
-          "label": "Edges",
-          "mask": "edges",
-          "shut": true,
+          "n": 1, "label": "Edges", "mask": "edges", "shut": true,
           "cases": [
             { "id": "oll-l", "name": "L-Shape", "alg": "f' L' U' L U f", "prob": "50%", "status": "learned" },
             { "id": "oll-i", "name": "I-Shape", "alg": "F' L' U' L U F", "prob": "25%", "status": "learned" },
@@ -17,9 +13,7 @@
           ]
         },
         {
-          "n": 2,
-          "label": "Corners",
-          "mask": "oll",
+          "n": 2, "label": "Corners", "mask": "oll",
           "cases": [
             { "id": "oll-sune", "name": "Sune", "alg": "L' U2 L U L' U L", "prob": "15%" },
             { "id": "oll-antisune", "name": "Antisune", "alg": "L' U' L U' L' U2 L", "prob": "15%" },
@@ -33,27 +27,37 @@
       ]
     },
     {
-      "id": "pll",
-      "title": "2-Look PLL",
+      "id": "pll", "title": "2-Look PLL",
       "groups": [
         {
-          "n": 1,
-          "label": "Corners",
-          "mask": "corners",
+          "n": 1, "label": "Corners", "mask": "corners",
           "cases": [
             { "id": "pll-head", "name": "Headlights", "alg": "L' U' L U L F' L2 U L U L' U' L F", "prob": "67%" },
             { "id": "pll-diag", "name": "Diagonal", "alg": "F' L' U L U L' U' L F L' U' L U L F' L' F", "prob": "17%" },
-            { "id": "pll-aa", "name": "Aa", "alg": "x L2 D2 L' U' L D2 L' U L'", "prob": "67%" },
-            { "id": "pll-ab", "name": "Ab", "alg": "x' L2 D2 L U L' D2 L U' L", "prob": "67%" }
+            { "id": "pll-aa", "name": "Aa", "prob": "67%", "algs": [
+              { "id": "x", "label": "x", "alg": "x R' U R' D2 R U' R' D2 R2" },
+              { "id": "xp", "label": "x'", "alg": "x' L' U L' D2 L U' L' D2 L2" },
+              { "id": "r", "label": "r", "alg": "r L D2 L' U' L D2 L' U L'" },
+              { "id": "fb", "label": "F/B", "alg": "L2 B2 L' F' L B2 L' F L'" }
+            ] },
+            { "id": "pll-ab", "name": "Ab", "prob": "67%", "algs": [
+              { "id": "x", "label": "x", "alg": "x L U' L D2 L' U L D2 L2" },
+              { "id": "xp", "label": "x'", "alg": "x' L2 D2 L U L' D2 L U' L" },
+              { "id": "fb", "label": "F/B", "alg": "L2 F2 L B L' F2 L B' L" }
+            ] }
           ]
         },
         {
-          "n": 2,
-          "label": "Edges",
-          "mask": "full",
+          "n": 2, "label": "Edges", "mask": "full",
           "cases": [
-            { "id": "pll-ua", "name": "Ua", "alg": "M2 U M U2 M' U M2", "prob": "33%" },
-            { "id": "pll-ub", "name": "Ub", "alg": "M2 U' M U2 M' U' M2", "prob": "33%" },
+            { "id": "pll-ua", "name": "Ua", "prob": "33%", "algs": [
+              { "id": "m", "label": "M", "alg": "M2 U M U2 M' U M2" },
+              { "id": "nom", "label": "no M", "alg": "L2 U' L' U' L U L U L U' L" }
+            ] },
+            { "id": "pll-ub", "name": "Ub", "prob": "33%", "algs": [
+              { "id": "m", "label": "M", "alg": "M2 U' M U2 M' U' M2" },
+              { "id": "nom", "label": "no M", "alg": "L' U L' U' L' U' L' U L U L2" }
+            ] },
             { "id": "pll-z", "name": "Z", "alg": "M' U' M2 U' M2 U' M' U2 M2", "prob": "17%" },
             { "id": "pll-h", "name": "H", "alg": "M2 U M2 U2 M2 U M2", "prob": "8%" }
           ]
@@ -61,13 +65,10 @@
       ]
     },
     {
-      "id": "f2l",
-      "title": "F2L",
+      "id": "f2l", "title": "F2L",
       "groups": [
         {
-          "n": 1,
-          "label": "Basic inserts",
-          "mask": "f2l",
+          "n": 1, "label": "Basic inserts", "mask": "f2l",
           "cases": [
             { "id": "f2l-pair-l", "name": "Paired, L side", "alg": "U' L' U L" },
             { "id": "f2l-pair-f", "name": "Paired, F side", "alg": "U F U' F'" },
@@ -76,9 +77,7 @@
           ]
         },
         {
-          "n": 2,
-          "label": "White on the side",
-          "mask": "f2l",
+          "n": 2, "label": "White on the side", "mask": "f2l",
           "cases": [
             { "id": "f2l-side-apart-l", "name": "Apart, L side", "alg": "U L' U' L U2 L' U L" },
             { "id": "f2l-side-apart-f", "name": "Apart, F side", "alg": "U' F U F' U2 F U' F'" },
@@ -87,9 +86,7 @@
           ]
         },
         {
-          "n": 3,
-          "label": "White on top",
-          "mask": "f2l",
+          "n": 3, "label": "White on top", "mask": "f2l",
           "cases": [
             { "id": "f2l-top-split-l", "name": "Split, L side", "alg": "L' U2 L U L' U' L" },
             { "id": "f2l-top-split-f", "name": "Split, F side", "alg": "F U2 F' U' F U F'" },
@@ -100,13 +97,10 @@
       ]
     },
     {
-      "id": "f2l-adv",
-      "title": "F2L advanced",
+      "id": "f2l-adv", "title": "F2L advanced",
       "groups": [
         {
-          "n": 1,
-          "label": "Both on top",
-          "mask": "f2l-slot",
+          "n": 1, "label": "Both on top", "mask": "f2l-slot",
           "cases": [
             { "id": "f2la-apart-green-green-on-top", "name": "Apart, green + green on top", "alg": "U L' U2 L U2 L' U L" },
             { "id": "f2la-apart-red-red-on-top", "name": "Apart, red + red on top", "alg": "U' F U2 F' U2 F U' F'" },
@@ -123,9 +117,7 @@
           ]
         },
         {
-          "n": 2,
-          "label": "Corner in slot",
-          "mask": "f2l-slot",
+          "n": 2, "label": "Corner in slot", "mask": "f2l-slot",
           "cases": [
             { "id": "f2la-white-left-green-on-top", "name": "White left, green on top", "alg": "F U' F' L' U' L" },
             { "id": "f2la-white-front-red-on-top", "name": "White front, red on top", "alg": "L' U L F U F'" },
@@ -136,9 +128,7 @@
           ]
         },
         {
-          "n": 3,
-          "label": "Edge in slot",
-          "mask": "f2l-slot",
+          "n": 3, "label": "Edge in slot", "mask": "f2l-slot",
           "cases": [
             { "id": "f2la-red-on-top-edge-in-place", "name": "Red on top, edge in place", "alg": "U L' U2 L U' L' U' L" },
             { "id": "f2la-green-on-top-edge-in-place", "name": "Green on top, edge in place", "alg": "U' F U2 F' U F U F'" },
@@ -149,9 +139,7 @@
           ]
         },
         {
-          "n": 4,
-          "label": "Both in slot",
-          "mask": "f2l-slot",
+          "n": 4, "label": "Both in slot", "mask": "f2l-slot",
           "cases": [
             { "id": "f2la-corner-in-place-edge-flipped", "name": "Corner in place, edge flipped", "alg": "L2 U2 F' L2 F U2 L U' L" },
             { "id": "f2la-white-left-edge-in-place", "name": "White left, edge in place", "alg": "L' U2 L' U' L U' L' U2 L2" },
