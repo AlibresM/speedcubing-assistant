@@ -37,8 +37,8 @@ function orientFix(moves){
   if(eq(c("U"),[0,1,0])&&eq(c("F"),[0,0,1]))return seq.map(([ax,k])=>["xyz"[ax],-k])}
  return []}
 function invert(moves){return moves.slice().reverse().map(([f,n])=>[f,-n])}
-function fmt(moves){return moves.map(([f,n])=>{const a=Math.abs(n)%4;
- return f+(a===2?"2":"")+((n<0&&a!==2)?"'":"")}).join(" ")}
+function fmt(moves){return moves.map(([f,n])=>{const a=((n%4)+4)%4;   // 3 quarter turns = '
+ return f+(a===2?"2":a===3?"'":"")}).join(" ")}
 function mirror(str){const sw={R:"L",L:"R",r:"l",l:"r"};
  return fmt(parse(str).map(([f,n])=>{if("RLrl".includes(f))return[sw[f],-n];if("Mx".includes(f))return[f,n];return[f,-n]}))}
 const eq=(a,b)=>a[0]===b[0]&&a[1]===b[1]&&a[2]===b[2];

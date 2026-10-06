@@ -33,8 +33,37 @@ inert when `window.claude` is undefined.
 - **Always two columns.** Each column's header is a dropdown of all sets; picking
   the set the other column shows swaps them. `config.open` gives the defaults;
   the user's pick is remembered. No set descriptions.
-- 2-Look OLL: 3 edge cases, 7 corner cases. 2-Look PLL: 4 corner cases
-  (Headlights, Diagonal, Aa, Ab), 4 edge cases (Ua, Ub, Z, H). Shown by default.
+- 2-Look OLL: 3 edge cases, 7 corner cases. 2-Look PLL corners: Ja, Jb, T,
+  F, Diagonal, Na, Nb, Aa, Ab; edges: Ua, Ub, Z, H. Shown by default.
+  Ja (`L' U' L F L' U' L U L F' L2 U L`, mirrored Jb) and Jb
+  (`L U' R U2 L' U L U2 L' R'`, mirrored Ja) lead the PLL corners because other
+  cases are built from them. The case called Headlights was renamed **T**
+  (user's request; id `pll-head` kept; names carry no "-perm"). Full PLLs written as
+  prealg + case + postalg (user's request): F `(L U F) T (F' U' L')`,
+  Na `(L U L' U2) Jb (U' L U' L')`, Nb `(L' U' L U') Ja (U2 L' U L)`. Nb is
+  built from Ja and Na from Jb (user's choice). Na can't be built from Ja: no
+  prealg ≤ 3 + postalg ≤ 5 moves exists. A V-perm built from J was asked
+  for and then withdrawn (it was N that was meant). No V found with
+  prealg ≤ 3 + postalg ≤ 5 either.
+- **Routes** (user's request): the OLL corner cases H, Pi, U, T and L have a
+  Sune/Antisune alternative, written as `Antisune -> [Sune]`: do Antisune, and
+  you have the Sune case (H and Pi `Antisune -> [Antisune]`; U, T and L
+  `Antisune -> [Sune]`). **Antisune first wherever possible** (user's request:
+  Antisune `L' U' L U' L' U2 L` is the one the user knows best). Diagonal has `Ja -> [Ja]`. Sune and Antisune have **no** route
+  (via each other; removed at the user's request), nor have T (Headlights), Ua
+  and Ub (J routes added and removed). **A route starts from the same picture as
+  the case's first formula, with no U turn in front** (user's request). Choose
+  Sune or Antisune to make that true: The **main H formula** is Antisune twice written out:
+  `(L' U' L U' L' U2 L) (L' U' L U' L' U2 L)` (same moves as the old
+  `L' U' L U' L' U L U' L' U2 L`; bars left and right). Sune twice was tried
+  and rejected: it turns H a quarter (bars front and back). The user had mixed
+  up the names; the app's names are right: Sune `L' U2 L U L' U L`, Antisune
+  `L' U' L U' L' U2 L`. The U turn before the second step
+  (recognise, then AUF) is not written; the picture accounts for it. In
+  a formula, a case name of the same set stands for that case's formula. The diagram
+  includes solving the case after `->`, with the U turn between that makes the
+  route start from this case. A route that can't start from this case turns the box
+  orange ("Doesn't lead to X from this case"). Mirror does nothing on a route.
 - F2L: 12 left-hand cases into the **front-left** slot, in three groups (basic
   inserts, white on the side, white on top), each as an L-side and F-side
   variant. Top-view diagrams.
@@ -136,12 +165,15 @@ inert when `window.claude` is undefined.
   is on top. They replaced the earlier x formulas (`x L2 D2 L' U' L D2 L' U L'`
   / `x' L2 D2 L U L' D2 L U' L`). Don't change these to left-hand.
 - **No AUF padding on alternative formulas** (user's request): a formula is not
-  prefixed with U / U' just to match another formula's picture. The diagram is
+  prefixed with U / U' just to match another formula's picture. Routes need none either: they
+  start from the first formula's picture by choosing Sune or Antisune. The diagram is
   drawn from the formula shown, so it simply turns when you switch.
 - **Right-hand duplicate rows were added and removed** — rejected as clutter.
 - **Sune/Antisune composition notes** (H = Sune twice, Pi = Sune U Sune, etc.) were
   added as a second formula field, then as a note line, then in the case name —
-  **all removed**. The user did not want them.
+  **all removed**. The user did not want them. Later (2026-10-06) the user asked
+  for them as **alternative formulas** in the `Sune -> [Antisune]` form (see
+  Routes); that is the accepted form.
 - **F2L**: an earlier F2L section (11 cases) was built and removed. It was
   **re-added on the user's request** as a config set, not shown by default.
   It's left-handed (front-left slot), with the `f2l` mask retargeted from
@@ -179,6 +211,14 @@ inert when `window.claude` is undefined.
 - All 18 OLL/PLL formulas were checked programmatically: each solves the case it is
   labelled as, under some AUF, and none disturbs the first two layers. Verified
   with deliberately swapped references to prove the check can fail.
+- Routes: each expanded route is solved by its case's first formula (some U
+  first), and none disturbs the first two layers. A wrong route (H `Sune -> [Pi]`)
+  is flagged. The search behind them tried Sune and Antisune (or Ja) followed by
+  every case of the set: Sune/Antisune targets were preferred for OLL.
+- Ja, Jb, T, F, Na and Nb (expanded) each solve the same case as the
+  standard right-hand algorithm (some AUF before and after); swapped references
+  (Na/Nb, Ja/Jb, F/T) fail. The prealg/postalg pairs came from a
+  meet-in-the-middle search over setups, preferring L/U/F moves.
 - All 12 F2L formulas: each inserts the front-left pair from a top-layer position
   and leaves the cross and the other three slots intact. They are mirrors of
   standard right-hand algorithms.

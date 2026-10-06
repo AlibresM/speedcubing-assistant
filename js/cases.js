@@ -9,9 +9,13 @@ const VARS={};   // caseId -> [{vid,label,key}]
 const varKey=(c,v,i)=>i?c.id+"."+v.id:c.id;
 function activeVar(id){const vs=VARS[id];return vs.find(v=>v.vid===pick[id])||vs[0]}
 const activeKey=id=>activeVar(id).key;
+const CASE={},NAMES={};   // caseId -> {set,mask}; setId -> {normalised case name: caseId}
+const norm=s=>s.toLowerCase().replace(/[^a-z0-9]/g,"");
 function renderSets(){
  let all="";
- for(const set of CFG.sets){
+ for(const set of CFG.sets){NAMES[set.id]={};
+  for(const g of set.groups)for(const c of g.cases){CASE[c.id]={set:set.id,mask:g.mask};
+   NAMES[set.id][norm(c.name)]=c.id;NAMES[set.id][norm(c.name.split(" (")[0])]??=c.id}
   all+=`<div class="setbody" id="set-${esc(set.id)}" data-set="${esc(set.id)}">`;
   for(const g of set.groups){
    all+=`<div class="step" data-step="${esc(set.id)}${g.n}"><h3><span class="stepn">${g.n}</span>${esc(g.label)}<span class="chev">▾</span></h3><ul class="cases">`;
@@ -29,7 +33,8 @@ function renderSets(){
  document.querySelectorAll(".step").forEach(d=>{d.querySelector("h3").onclick=()=>{
   const k=d.dataset.step;if(shut[k])delete shut[k];else shut[k]=1;persist();paintStep(d);d.querySelectorAll(".alg").forEach(fit)}});
  document.querySelectorAll(".case").forEach(li=>{const id=li.dataset.id,mask=li.dataset.mask,ta=li.querySelector(".alg");
-  const go=()=>update(li,id,mask);
+  const go=()=>{update(li,id,mask);   // formulas that use this case by name follow it
+   li.closest(".setbody").querySelectorAll(".case").forEach(o=>{if(o!==li&&ROUTE.test(o.querySelector(".alg").value))update(o,o.dataset.id,o.dataset.mask)})};
   li.querySelector(".st").onclick=()=>{const n=CYCLE[(CYCLE.indexOf(status[id]||"")+1)%3];
    if(n)status[id]=n;else delete status[id];persist();paint(li)};
   li.querySelector(".fold").onclick=()=>{if(shut[id])delete shut[id];else shut[id]=1;persist();paint(li);fit(ta)};
@@ -46,13 +51,43 @@ function showVar(li){const v=activeVar(li.dataset.id);
 function fillVar(li){const s=li.querySelector(".var");if(!s)return;const id=li.dataset.id;
  s.innerHTML=VARS[id].map(v=>`<option value="${esc(v.vid)}" title="${esc(v.label)}">${esc((saved[v.key]??defaults[v.key]).trim())}</option>`).join("");
  s.value=activeVar(id).vid}
+/* Routes: a formula may use a case name of its own set as a move ("Sune" = that case's formula) and end in
+   "-> [Case]": do the moves, and you have that case. The diagram includes solving it, with the U turn in
+   between that makes the route start from this case (compared with its first formula). */
+const ROUTE=/->|[A-Za-z]{2,}/;
+const fullTurn=m=>m.concat(orientFix(m));
+function formulaOf(id){const k=activeKey(id),f=saved[k]??defaults[k];if(!f.includes("->"))return f;
+ const v=VARS[id].find(v=>!(saved[v.key]??defaults[v.key]).includes("->"));return v?saved[v.key]??defaults[v.key]:f}
+function solvedFor(t,mask){
+ if(mask==="oll"||mask==="edges")return t.every(s=>s.f!=="U"||eq(s.n,NORM.U)||(mask==="edges"&&isCorner(s.p)));
+ if(mask==="f2l"||mask==="f2l-slot")return t.every(s=>s.h[1]===1||(eq(s.p,s.h)&&eq(s.n,NORM[s.f])));
+ for(let c=0;c<4;c++){const u=t.map(s=>({...s}));if(c)apply(u,[["U",c]]);
+  if(mask==="corners"?checkF2L(u)&&u.every(s=>s.p[1]<1||!isCorner(s.p)||(eq(s.p,s.h)&&eq(s.n,NORM[s.f]))):isSolvedLL(u))return true}
+ return false}
+// does formula `ref` solve the position that `moves` solves (any U turn first)?
+function sameCase(moves,ref,mask){for(let a=0;a<4;a++){const t=solved();apply(t,invert(fullTurn(moves)));
+ if(a)apply(t,[["U",a]]);apply(t,fullTurn(ref));if(solvedFor(t,mask))return true}return false}
+function expand(id,text,depth=0){
+ if(depth>5)throw new Error("Case names refer to each other in a loop");
+ const parts=text.split("->");if(parts.length>2)throw new Error("Only one -> per formula");
+ const names=NAMES[CASE[id].set],moves=[];
+ for(const t of parts[0].replace(/[()\[\]]/g," ").trim().split(/\s+/).filter(Boolean)){
+  try{moves.push(...parse(t))}catch(e){const c=names[norm(t)];if(!c)throw e;moves.push(...expand(c,formulaOf(c),depth+1))}}
+ if(parts.length<2)return moves;
+ const m=parts[1].match(/^\s*\[(.+)\]\s*$/);if(!m)throw new Error("Write the case after -> in [ ]");
+ const to=names[norm(m[1])];if(!to)throw new Error("Unknown case: "+m[1].trim());
+ const head=fullTurn(moves),tail=expand(to,formulaOf(to),depth+1),mask=CASE[id].mask;
+ const own=VARS[id].map(v=>saved[v.key]??defaults[v.key]).find(f=>!f.includes("->"));
+ let ref=null;try{if(own)ref=expand(id,own,depth+1)}catch(e){}
+ for(let b=0;b<4;b++){const r=head.concat(b?[["U",b]]:[],tail);if(!ref||sameCase(r,ref,mask))return r}
+ const r=head.concat(tail);r.off="Doesn't lead to "+m[1].trim()+" from this case";return r}
 // No text under the formula: a problem only colours the box (err red, warn orange) and explains itself on hover.
 function update(li,id,mask){
  const ta=li.querySelector(".alg"),pic=li.querySelector(".pic");
  const note=(kind,text)=>{ta.classList.toggle("err",kind==="err");ta.classList.toggle("warn",kind==="warn");ta.title=text||""};
  fit(ta);
  ta.classList.toggle("changed",ta.value.trim()!==defaults[activeKey(id)]);
- let moves;try{moves=parse(ta.value)}catch(e){note("err",e.message);return}
+ let moves;try{moves=expand(id,ta.value)}catch(e){note("err",e.message);return}
  let st,best=1e9;
  const pll=mask==='corners'||mask==='full';const fix=orientFix(moves);
  for(let k=0;k<(pll?4:1);k++){const t=solved();apply(t,invert(moves.concat(fix,k?[["U",k]]:[])));
@@ -66,6 +101,7 @@ function update(li,id,mask){
   else note()}
  else if(!checkF2L(st))note("warn","Breaks the first two layers");
  else if(isSolvedLL(st))note("warn","Does nothing to the last layer");
+ else if(moves.off)note("warn",moves.off);
  else note()}
 function fit(t){if(!t.offsetParent){t.style.height="";return}t.style.height="auto";t.style.height=t.scrollHeight+"px"}
 const CYCLE=["","learning","learned"];   // drawn by CSS as an empty, half and full circle

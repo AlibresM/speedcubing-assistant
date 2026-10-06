@@ -1,7 +1,7 @@
 /* Speedcubing Assistant - service worker
    Cache-first for the app shell, with a background refresh.
    Bump CACHE whenever any file below changes. */
-const CACHE = "cubing-v3_1";
+const CACHE = "cubing-v3_8";
 const ASSETS = [
   "./",
   "./index.html",

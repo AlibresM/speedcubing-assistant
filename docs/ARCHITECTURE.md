@@ -130,6 +130,15 @@ and the status line says "Offline copy".
   Storage keys: the **first** variant uses the case id (so edits made before a
   case got variants survive), the others `caseId.variantId`. So **don't reorder
   the first variant**, and keep variant ids stable.
+* **Routes in a formula**: a word that isn't a move but is a case name of the same set
+  (case-insensitive, punctuation ignored; `"U (Headlights)"` also answers to `U`)
+  stands for that case's current formula. A trailing `-> [Case]` means "then you
+  have that case": `expand()` (`cases.js`) appends the U turn and that case's
+  formula. It picks the U turn so that this case's first formula (without `->`)
+  solves the same position (`sameCase()`, per mask); if none does, the formula
+  gets the warning "Doesn't lead to X from this case". A referenced case whose
+  shown formula is itself a route is read through its first formula without `->`.
+  Editing a case re-draws the routes in its set.
 * **prob**: optional display string only.
 * **status** (case, optional): `"learning"` or `"learned"`. **shut** (case or
   group, optional): `true` = collapsed. These are defaults until the user changes
@@ -208,7 +217,8 @@ thin, dashed and faded.
 
 ### `update(li, id, mask)` (`cases.js`)
 
-Per case row: parse → state → `draw` → `.pic`, resize the textarea, flag problems.
+Per case row: `expand` (parse, plus case names and `->` routes, §2) → state →
+`draw` → `.pic`, resize the textarea, flag problems.
 There is **no message line** under the formula (the user rejected it). A problem
 sets a class on the textarea, which colours its border, and puts the reason in
 its `title` (hover):
@@ -218,6 +228,7 @@ its `title` (hover):
   the pair" → `.warn` (orange)
 * otherwise `checkF2L` fails → "Breaks the first two layers" → `.warn`
 * `isSolvedLL` → "Does nothing to the last layer" → `.warn`
+* a route that doesn't start from this case → "Doesn't lead to X from this case" → `.warn`
 * valid → no class, no title
 
 **There is no stored "expected" answer**; validation is structural.
